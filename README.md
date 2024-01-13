@@ -23,6 +23,6 @@ Players can type rtv to request the map to be changed, once a number of votes is
   "MinPlayers": 0, // Number of players required to enable the command
   "VotePercentage": 0.6, // Percentage of votes required to change the map
   "Language": "en", // The language, for now only en and pt are valid values
-  "Version": 1 // Don't chang this
+  "Version": 1 // Don't change this
 }
 ```
