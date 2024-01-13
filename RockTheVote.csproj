@@ -14,4 +14,10 @@
     </Reference>
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="maplist.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
