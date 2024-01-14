@@ -2,7 +2,6 @@
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Core.Attributes.Registration;
 using CounterStrikeSharp.API.Modules.Commands;
-using System.ComponentModel.Design;
 using static CounterStrikeSharp.API.Core.Listeners;
 
 namespace cs2_rockthevote
@@ -10,7 +9,7 @@ namespace cs2_rockthevote
     public class RockTheVote : BasePlugin, IPluginConfig<Config>
     {
         public override string ModuleName => "RockTheVote";
-        public override string ModuleVersion => "0.0.2";
+        public override string ModuleVersion => "0.0.3";
         public override string ModuleAuthor => "abnerfs";
         public override string ModuleDescription => "You know what it is, rtv";
 
@@ -46,7 +45,6 @@ namespace cs2_rockthevote
                 .Split("\n")
                 .Select(x => x.Trim())
                 .Where(x => !x.StartsWith("//"))
-                .Where(x => Server.IsMapValid(x))
                 .ToList();
         }
 
@@ -104,7 +102,7 @@ namespace cs2_rockthevote
             {
                 player!.PrintToChat($"[RockTheVote] Usage: nominate <map-name>");
             }
-            else if (Server.IsMapValid(map))
+            else if (Maps.FirstOrDefault(x => x.ToLower() == map) is not null)
             {
                 if (map == Server.MapName)
                 {
@@ -127,7 +125,7 @@ namespace cs2_rockthevote
             if (!ValidateCommand(player))
                 return;
 
-            string map = command.GetArg(1);
+            string map = command.GetArg(1).Trim().ToLower();
             NominateHandler(player, map);
         }
 
