@@ -87,6 +87,7 @@ namespace cs2_rockthevote
 
             Plugin.AddTimer(4.0F, () =>
             {
+                Server.ExecuteCommand($"ds_workshop_changelevel {winner.Key}");
                 Server.ExecuteCommand($"changelevel {winner.Key}");
             });
         }
