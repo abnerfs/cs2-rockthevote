@@ -9,7 +9,7 @@ namespace cs2_rockthevote
     public class RockTheVote : BasePlugin, IPluginConfig<Config>
     {
         public override string ModuleName => "RockTheVote";
-        public override string ModuleVersion => "0.0.4";
+        public override string ModuleVersion => "0.0.5";
         public override string ModuleAuthor => "abnerfs";
         public override string ModuleDescription => "You know what it is, rtv";
 

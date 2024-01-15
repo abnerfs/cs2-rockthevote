@@ -8,9 +8,7 @@ namespace cs2_rockthevote
         public int ValidPlayerCount
         {
             get => Utilities.GetPlayers()
-                    .Where(x => x.IsValid && !x.IsBot && !x.IsHLTV)
-                    .Select(x => x.SteamID)
-                    .Distinct()
+                    .Where(x => x.IsValid && !x.IsBot && !x.IsHLTV && x.AuthorizedSteamID is not null && x.Connected == CounterStrikeSharp.API.Core.PlayerConnectedState.PlayerConnected)
                     .Count();
         }
     }
