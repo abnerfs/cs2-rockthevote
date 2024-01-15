@@ -27,7 +27,8 @@ Players can type rtv to request the map to be changed, once a number of votes is
   "Version": 2,
   "RtvVotePercentage": 60,
   "RtvMinPlayers": 0,
-  "DisableVotesInWarmup": false
+  "DisableVotesInWarmup": false,
+  "MapsToShowInVote": 5
 }
 ```
 
