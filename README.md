@@ -37,3 +37,5 @@ Maps that will be used in RTV are located in addons/counterstrikesharp/configs/p
 - Add minimum rounds to use commands.
 - Add votemap.
 - Translations support
+- Add dont change option
+- Nomination menu
