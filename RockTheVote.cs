@@ -9,7 +9,7 @@ namespace cs2_rockthevote
     public class RockTheVote : BasePlugin, IPluginConfig<Config>
     {
         public override string ModuleName => "RockTheVote";
-        public override string ModuleVersion => "0.0.3";
+        public override string ModuleVersion => "0.0.4";
         public override string ModuleAuthor => "abnerfs";
         public override string ModuleDescription => "You know what it is, rtv";
 
@@ -162,7 +162,8 @@ namespace cs2_rockthevote
                     Server.PrintToChatAll("[RockTheVote] Number of votes reached, the vote for the next map will start");
                     var mapsScrambled = Shuffle(new Random(), Maps.Where(x => x != Server.MapName).ToList());
                     var maps = NominationManager.Votes().Concat(mapsScrambled).Distinct().ToList();
-                    VoteManager manager = new(maps!, this, 30, ServerManager.ValidPlayerCount);
+                    var mapsToShow = Config!.MapsToShowInVote == 0 ? 5 : Config!.MapsToShowInVote;
+                    VoteManager manager = new(maps!, this, 30, ServerManager.ValidPlayerCount, mapsToShow);
                     manager.StartVote();
                     break;
             }
@@ -172,22 +173,24 @@ namespace cs2_rockthevote
         public HookResult OnChat(EventPlayerChat @event, GameEventInfo info)
         {
             var player = Utilities.GetPlayerFromUserid(@event.Userid);
-            if (!ValidateCommand(player))
-                return HookResult.Continue;
 
             var text = @event.Text.Trim().ToLower();
             if (@event.Text.Trim() == "rtv")
             {
+                if (!ValidateCommand(player))
+                    return HookResult.Continue;
+
                 OnRTV(player, null);
             }
             else if (text.StartsWith("nominate"))
             {
+                if (!ValidateCommand(player))
+                    return HookResult.Continue;
 
                 var split = text.Split("nominate");
                 var map = split.Length > 1 ? split[1].Trim() : "";
                 NominateHandler(player, map);
             }
-
 
             return HookResult.Continue;
         }

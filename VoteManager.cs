@@ -8,18 +8,20 @@ namespace cs2_rockthevote
 {
     public class VoteManager
     {
-        public VoteManager(List<string> maps, RockTheVote plugin, int voteDuration, int canVoteCount)
+        public VoteManager(List<string> maps, RockTheVote plugin, int voteDuration, int canVoteCount, int mapstoShow)
         {
             Maps = maps;
             Plugin = plugin;
             Duration = voteDuration;
             CanVoteCount = canVoteCount;
+            MapsToShow = mapstoShow;
         }
 
         private List<string> Maps { get; }
         private RockTheVote Plugin { get; }
         private int Duration { get; set; }
         public int CanVoteCount { get; }
+        public int MapsToShow { get; }
         private CounterStrikeSharp.API.Modules.Timers.Timer? Timer { get; set; }
 
         Dictionary<string, int> Votes = new();
@@ -94,8 +96,8 @@ namespace cs2_rockthevote
 
         public void StartVote()
         {
-            ChatMenu menu = new("Vote for the next map:");
-            foreach(var map in Maps.Take(5))
+            ChatMenu menu = new($"Vote for the next map:");
+            foreach(var map in Maps.Take(MapsToShow))
             {
                 Votes[map] = 0;
                 menu.AddMenuOption(map, (player, option) => MapVoted(player, map));
