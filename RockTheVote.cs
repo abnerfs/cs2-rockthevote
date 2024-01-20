@@ -22,6 +22,10 @@ namespace cs2_rockthevote
 
         public Config? Config { get; set; }
 
+        public string Localize(string key, params object[] values)
+        {
+            return $"{Localizer["prefix"]}{Localizer[key, values]}";
+        }
 
         public bool WarmupRunning
         {
@@ -60,7 +64,7 @@ namespace cs2_rockthevote
                 .Where(x => !string.IsNullOrWhiteSpace(x) && !x.StartsWith("//"))
                 .ToList();
 
-            NominationManager = new(Maps.ToArray());
+            NominationManager = new(this, Maps.ToArray());
         }
 
         public override void Load(bool hotReload)
@@ -89,19 +93,19 @@ namespace cs2_rockthevote
 
             if(Config!.MinRounds > RoundsPlayed)
             {
-                player!.PrintToChat($"[RockTheVote] Minimum rounds to use this command is {Config!.MinRounds}");
+                player!.PrintToChat(Localize("minimum-rounds", Config!.MinRounds));
                 return false;
             }
 
             if (WarmupRunning && Config!.DisableVotesInWarmup)
             {
-                player.PrintToChat("[RockTheVote] Command disabled during warmup.");
+                player.PrintToChat(Localize("disabled-warmup"));
                 return false;
             }
 
             if (ServerManager.ValidPlayerCount < Config!.RtvMinPlayers)
             {
-                player.PrintToChat($"[RockTheVote] Minimum players to use this command is {Config.RtvMinPlayers}");
+                player.PrintToChat(Localize("minimum-players", Config.RtvMinPlayers));
                 return false;
             }
 
@@ -121,7 +125,7 @@ namespace cs2_rockthevote
         {
             if(Rtv!.VotesAlreadyReached)
             {
-                player!.PrintToChat("[RockTheVote] Number of votes reached, nomination disabled");
+                player!.PrintToChat(Localize("nomination-votes-reached"));
             }
             else if (string.IsNullOrEmpty(map))
             {
@@ -167,15 +171,15 @@ namespace cs2_rockthevote
             switch (result)
             {
                 case VoteResult.Added:
-                    Server.PrintToChatAll($"[RockTheVote] {player.PlayerName} wants to rock the vote ({Rtv.VoteCount} voted, {Rtv.RequiredVotes} needed)");
+                    Server.PrintToChatAll(Localize("rocked-the-vote", player.PlayerName, Rtv.VoteCount, Rtv.RequiredVotes));
                     break;
                 case VoteResult.AlreadyAddedBefore:
-                    player.PrintToChat($"[RockTheVote] You already rocked the vote ({Rtv.VoteCount} voted, {Rtv.RequiredVotes} needed)");
+                    Server.PrintToChatAll(Localize("already-rocked-the-vote", Rtv.VoteCount, Rtv.RequiredVotes));
                     break;
                 case VoteResult.VotesReached:
-                    Server.PrintToChatAll("[RockTheVote] Number of votes reached, the vote for the next map will start");
+                    Server.PrintToChatAll(Localize("starting-vote",player.PlayerName, Rtv.VoteCount, Rtv.RequiredVotes));
                     var mapsScrambled = Shuffle(new Random(), Maps.Where(x => x != Server.MapName).ToList());
-                    var maps = NominationManager.NominationWinners().Concat(mapsScrambled).Distinct().ToList();
+                    var maps = NominationManager!.NominationWinners().Concat(mapsScrambled).Distinct().ToList();
                     var mapsToShow = Config!.MapsToShowInVote == 0 ? 5 : Config!.MapsToShowInVote;
                     voteManager = new(maps!, this, 30, ServerManager.ValidPlayerCount, mapsToShow, Config.ChangeImmediatly);
                     voteManager.StartVote();

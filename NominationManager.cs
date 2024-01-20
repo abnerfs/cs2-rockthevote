@@ -9,9 +9,13 @@ namespace cs2_rockthevote
     {
         Dictionary<int, List<string>> Nominations = new();
         ChatMenu? nominationMenu = null;
+
+        public RockTheVote Plugin { get; }
+
         private string[] Maps;
-        public NominationManager(string[] maps)
+        public NominationManager(RockTheVote plugin, string[] maps)
         {
+            Plugin = plugin;
             Maps = maps;
             nominationMenu = new("Nomination");
             foreach (var map in Maps)
@@ -32,14 +36,14 @@ namespace cs2_rockthevote
         {
             if (Maps.FirstOrDefault(x => x.ToLower() == map) is null)
             {
-                player!.PrintToChat($"[RockTheVote] Invalid map");
+                player!.PrintToChat(Plugin.Localize("invalid-map"));
                 return;
             
             }
 
             if (map == Server.MapName)
             {
-                player!.PrintToChat($"[RockTheVote] You can't nominate the current map");
+                player!.PrintToChat(Plugin.Localize("nominate-current"));
                 return;
             }
 
@@ -52,7 +56,8 @@ namespace cs2_rockthevote
 
             var totalVotes = Nominations.Select(x => x.Value.Where(y => y == map).Count())
                 .Sum();
-            Server.PrintToChatAll($"[RockTheVote] Player {player.PlayerName} nominated map {map}, now it has {totalVotes} vote(s)");
+
+            Server.PrintToChatAll(Plugin.Localize("nominated", player.PlayerName, map, totalVotes));
         }
 
         public List<string> NominationWinners()

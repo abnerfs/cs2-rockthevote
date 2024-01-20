@@ -8,6 +8,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Localization.Abstractions" Version="8.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Reference Include="CounterStrikeSharp.API">
       <HintPath>..\..\..\..\..\CSSHARP\CounterStrikeSharp.API.dll</HintPath>
       <Private>False</Private>
@@ -15,6 +19,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="lang\en.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="maplist.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

@@ -1,4 +1,6 @@
 ﻿
+using CounterStrikeSharp.API.Core;
+
 namespace cs2_rockthevote
 {
     public enum VoteResult { 
@@ -28,17 +30,22 @@ namespace cs2_rockthevote
             if (VotesAlreadyReached)
                 return VoteResult.VotesAlreadyReached;
 
+            VoteResult? result = null;
             if (votes.IndexOf(userId) != -1)
-                return VoteResult.AlreadyAddedBefore;
+                result = VoteResult.AlreadyAddedBefore;
+            else
+            {
+                votes.Add(userId);
+                result = VoteResult.Added;
+            }
 
-            votes.Add(userId);
             if(VoteValidator.CheckVotes(votes.Count))
             {
                 VotesAlreadyReached = true;
                 return VoteResult.VotesReached;
             }
 
-            return VoteResult.Added;   
+            return result.Value;   
         }
 
         public void RemoveVote(int userId)
