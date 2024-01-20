@@ -2,19 +2,21 @@
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Menu;
 using CounterStrikeSharp.API.Modules.Timers;
+using System.Reflection;
 using System.Text;
 
 namespace cs2_rockthevote
 {
     public class VoteManager
     {
-        public VoteManager(List<string> maps, RockTheVote plugin, int voteDuration, int canVoteCount, int mapstoShow)
+        public VoteManager(List<string> maps, RockTheVote plugin, int voteDuration, int canVoteCount, int mapstoShow, bool changeImmediatly)
         {
             Maps = maps;
             Plugin = plugin;
             Duration = voteDuration;
             CanVoteCount = canVoteCount;
             MapsToShow = mapstoShow;
+            ChangeImmediatly = changeImmediatly;
         }
 
         private List<string> Maps { get; }
@@ -22,7 +24,9 @@ namespace cs2_rockthevote
         private int Duration { get; set; }
         public int CanVoteCount { get; }
         public int MapsToShow { get; }
+        public bool ChangeImmediatly { get; }
         private CounterStrikeSharp.API.Modules.Timers.Timer? Timer { get; set; }
+        public string? NextMap { get; private set; }
 
         Dictionary<string, int> Votes = new();
         int TimeLeft = 0;
@@ -71,27 +75,52 @@ namespace cs2_rockthevote
             PrintCenterTextAll(stringBuilder.ToString());
         }
 
+        public bool ChangeNextMap()
+        {
+            if (string.IsNullOrWhiteSpace(NextMap))
+                return false;
+
+            var nextMap = NextMap;
+            Server.PrintToChatAll($"[RockTheVote] Changing map to {nextMap}.");
+            Plugin.AddTimer(3.0F, () =>
+            {
+                if(Server.IsMapValid(nextMap))
+                {
+                    Server.ExecuteCommand($"changelevel {nextMap}");
+                }
+                else
+                    Server.ExecuteCommand($"ds_workshop_changelevel {nextMap}");
+            });
+            NextMap = null;
+            return true;
+        }
+
         void EndVote()
         {
             KillTimer();
             var winner = Votes.OrderByDescending(x => x.Value).First();
             var totalVotes = Votes.Select(x => x.Value).Sum();
             var percent = totalVotes > 0 ?  (winner.Value / totalVotes) * 100 : 0;
-            if(percent > 0) 
-                Server.PrintToChatAll($"[RockTheVote] Vote ended, the next map will be {winner.Key} ({percent}% of {totalVotes} vote(s))");
+            if(percent > 0)
+            {
+                Server.PrintToChatAll($"[RockTheVote] Vote ended the next map will be {winner.Key} ({percent}% of {totalVotes} vote(s))");                                    
+            }
             else
             {
                 var rnd = new Random();
                 winner = Votes.ElementAt(rnd.Next(0, Votes.Count));
                 Server.PrintToChatAll($"[RockTheVote] No votes, the next map will be {winner.Key}");
             }
+
+            if (!ChangeImmediatly)
+            {
+                Server.PrintToChatAll($"[RockTheVote] The map will be changed to {winner.Key} in the next round...");
+            }
             PrintCenterTextAll($"Vote finished, next map: {winner.Key}");
 
-            Plugin.AddTimer(4.0F, () =>
-            {
-                Server.ExecuteCommand($"ds_workshop_changelevel {winner.Key}");
-                Server.ExecuteCommand($"changelevel {winner.Key}");
-            });
+            NextMap = winner.Key;
+            if (ChangeImmediatly)
+                ChangeNextMap();
         }
 
         public void StartVote()

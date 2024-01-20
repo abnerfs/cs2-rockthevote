@@ -69,7 +69,6 @@ namespace cs2_rockthevote
                 .Select(map => new KeyValuePair<string, int>(map, rawNominations.Count(x => x == map)))
                 .OrderByDescending(x => x.Value)
                 .Select(x => x.Key)
-                .Take(5)
                 .ToList();
         }
 

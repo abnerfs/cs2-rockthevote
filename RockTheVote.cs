@@ -18,6 +18,7 @@ namespace cs2_rockthevote
         NominationManager? NominationManager = null;
         AsyncVoteManager? Rtv = null;
         List<string> Maps = new();
+        VoteManager? voteManager = null;
 
         public Config? Config { get; set; }
 
@@ -56,7 +57,7 @@ namespace cs2_rockthevote
                 .Replace("\r\n", "\n")
                 .Split("\n")
                 .Select(x => x.Trim())
-                .Where(x => !x.StartsWith("//"))
+                .Where(x => !string.IsNullOrWhiteSpace(x) && !x.StartsWith("//"))
                 .ToList();
 
             NominationManager = new(Maps.ToArray());
@@ -176,10 +177,26 @@ namespace cs2_rockthevote
                     var mapsScrambled = Shuffle(new Random(), Maps.Where(x => x != Server.MapName).ToList());
                     var maps = NominationManager.NominationWinners().Concat(mapsScrambled).Distinct().ToList();
                     var mapsToShow = Config!.MapsToShowInVote == 0 ? 5 : Config!.MapsToShowInVote;
-                    VoteManager manager = new(maps!, this, 30, ServerManager.ValidPlayerCount, mapsToShow);
-                    manager.StartVote();
+                    voteManager = new(maps!, this, 30, ServerManager.ValidPlayerCount, mapsToShow, Config.ChangeImmediatly);
+                    voteManager.StartVote();
                     break;
             }
+        }
+
+        [GameEventHandler(HookMode.Post)]
+        public HookResult OnRoundEnd(EventRoundEnd @event, GameEventInfo info)
+        {
+            if(voteManager?.ChangeNextMap() ?? false)
+                voteManager = null;
+            return HookResult.Continue;
+        }
+
+        [GameEventHandler(HookMode.Post)]
+        public HookResult OnRoundStart(EventRoundStart @event, GameEventInfo info)
+        {
+            if (voteManager?.ChangeNextMap() ?? false)
+                voteManager = null;
+            return HookResult.Continue;
         }
 
         [GameEventHandler(HookMode.Post)]

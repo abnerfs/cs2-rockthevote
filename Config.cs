@@ -10,5 +10,6 @@ namespace cs2_rockthevote
         public bool DisableVotesInWarmup { get; set; } = false;
         public int MapsToShowInVote { get; set; } = 5;
         public int MinRounds { get; set; } = 0;
+        public bool ChangeImmediatly { get; set; } = true;
     }
 }
