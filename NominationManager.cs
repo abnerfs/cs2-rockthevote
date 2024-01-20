@@ -57,6 +57,9 @@ namespace cs2_rockthevote
 
         public List<string> NominationWinners()
         {
+            if(Nominations.Count  == 0)
+                return new List<string>();
+
             var rawNominations = Nominations
                 .Select(x => x.Value)
                 .Aggregate((acc, x) => acc.Concat(x).ToList());

@@ -33,6 +33,17 @@ namespace cs2_rockthevote
             }
         }
 
+        public int RoundsPlayed
+        {
+            get
+            {
+                if (_gameRules is null)
+                    SetGameRules();
+
+                return _gameRules?.TotalRoundsPlayed ?? 0;
+            }
+        }
+
         void LoadMaps()
         {
             Maps = new List<string>();
@@ -74,6 +85,12 @@ namespace cs2_rockthevote
         bool ValidateCommand(CCSPlayerController? player)
         {
             if (player is null || !player.IsValid) return false;
+
+            if(Config!.MinRounds > RoundsPlayed)
+            {
+                player!.PrintToChat($"[RockTheVote] Minimum rounds to use this command is {Config!.MinRounds}");
+                return false;
+            }
 
             if (WarmupRunning && Config!.DisableVotesInWarmup)
             {
@@ -145,7 +162,7 @@ namespace cs2_rockthevote
             if (!ValidateCommand(player))
                 return;
 
-            VoteResult result = Rtv.AddVote(player!.UserId!.Value);
+            VoteResult result = Rtv!.AddVote(player!.UserId!.Value);
             switch (result)
             {
                 case VoteResult.Added:
