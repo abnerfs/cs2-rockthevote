@@ -2,19 +2,21 @@
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Menu;
 using CounterStrikeSharp.API.Modules.Timers;
+using System.Reflection;
 using System.Text;
 
 namespace cs2_rockthevote
 {
     public class VoteManager
     {
-        public VoteManager(List<string> maps, RockTheVote plugin, int voteDuration, int canVoteCount, int mapstoShow)
+        public VoteManager(List<string> maps, RockTheVote plugin, int voteDuration, int canVoteCount, int mapstoShow, bool changeImmediatly)
         {
             Maps = maps;
             Plugin = plugin;
             Duration = voteDuration;
             CanVoteCount = canVoteCount;
             MapsToShow = mapstoShow;
+            ChangeImmediatly = changeImmediatly;
         }
 
         private List<string> Maps { get; }
@@ -22,7 +24,9 @@ namespace cs2_rockthevote
         private int Duration { get; set; }
         public int CanVoteCount { get; }
         public int MapsToShow { get; }
+        public bool ChangeImmediatly { get; }
         private CounterStrikeSharp.API.Modules.Timers.Timer? Timer { get; set; }
+        public string? NextMap { get; private set; }
 
         Dictionary<string, int> Votes = new();
         int TimeLeft = 0;
@@ -30,7 +34,7 @@ namespace cs2_rockthevote
         public void MapVoted(CCSPlayerController player, string mapName)
         {
             Votes[mapName] += 1;
-            player.PrintToChat($"[RockTheVote] You voted in {mapName}");
+            player.PrintToChat(Plugin.Localize("you-voted", mapName));
             VoteDisplayTick(TimeLeft);
             if (Votes.Select(x => x.Value).Sum() >= CanVoteCount)
             {
@@ -62,7 +66,7 @@ namespace cs2_rockthevote
         {
             int index = 1;
             StringBuilder stringBuilder = new();
-            stringBuilder.AppendLine($"Vote for the next map: {time}s");
+            stringBuilder.AppendLine(Plugin.Localizer["vote-for-next-map-hud", time]);
             foreach (var kv in Votes.OrderByDescending(x => x.Value).Take(2)) {
                 if(kv.Value > 0)
                     stringBuilder.AppendLine($"{index++} {kv.Key} ({kv.Value})");
@@ -71,32 +75,57 @@ namespace cs2_rockthevote
             PrintCenterTextAll(stringBuilder.ToString());
         }
 
+        public bool ChangeNextMap()
+        {
+            if (string.IsNullOrWhiteSpace(NextMap))
+                return false;
+
+            var nextMap = NextMap;
+            Server.PrintToChatAll(Plugin.Localize("changing-map", nextMap));
+            Plugin.AddTimer(3.0F, () =>
+            {
+                if(Server.IsMapValid(nextMap))
+                {
+                    Server.ExecuteCommand($"changelevel {nextMap}");
+                }
+                else
+                    Server.ExecuteCommand($"ds_workshop_changelevel {nextMap}");
+            });
+            NextMap = null;
+            return true;
+        }
+
         void EndVote()
         {
             KillTimer();
             var winner = Votes.OrderByDescending(x => x.Value).First();
             var totalVotes = Votes.Select(x => x.Value).Sum();
             var percent = totalVotes > 0 ?  (winner.Value / totalVotes) * 100 : 0;
-            if(percent > 0) 
-                Server.PrintToChatAll($"[RockTheVote] Vote ended, the next map will be {winner.Key} ({percent}% of {totalVotes} vote(s))");
+            if(percent > 0)
+            {
+                Server.PrintToChatAll(Plugin.Localize("vote-ended", winner.Key, percent, totalVotes));
+            }
             else
             {
                 var rnd = new Random();
                 winner = Votes.ElementAt(rnd.Next(0, Votes.Count));
-                Server.PrintToChatAll($"[RockTheVote] No votes, the next map will be {winner.Key}");
+                Server.PrintToChatAll(Plugin.Localize("vote-ended-no-votes", winner.Key));
             }
-            PrintCenterTextAll($"Vote finished, next map: {winner.Key}");
 
-            Plugin.AddTimer(4.0F, () =>
+            if (!ChangeImmediatly)
             {
-                Server.ExecuteCommand($"ds_workshop_changelevel {winner.Key}");
-                Server.ExecuteCommand($"changelevel {winner.Key}");
-            });
+                Server.PrintToChatAll(Plugin.Localize("changing-map-next-round", winner.Key));
+            }
+            PrintCenterTextAll(Plugin.Localizer["vote-finished-hud", winner.Key]);
+
+            NextMap = winner.Key;
+            if (ChangeImmediatly)
+                ChangeNextMap();
         }
 
         public void StartVote()
         {
-            ChatMenu menu = new($"Vote for the next map:");
+            ChatMenu menu = new(Plugin.Localizer["vote-for-next-map"]);
             foreach(var map in Maps.Take(MapsToShow))
             {
                 Votes[map] = 0;

@@ -24,19 +24,25 @@ Players can type rtv to request the map to be changed, once a number of votes is
 
 ```json
 {
-  "Version": 2,
+  "Version": 4,
   "RtvVotePercentage": 60,
   "RtvMinPlayers": 0,
   "DisableVotesInWarmup": false,
-  "MapsToShowInVote": 5
+  "MapsToShowInVote": 5,
+  "ChangeImmediatly": true,
+  "MinRounds": 0
 }
 ```
 
 Maps that will be used in RTV are located in addons/counterstrikesharp/configs/plugins/RockTheVote/maplist.txt
 
 # TODO
-- Add minimum rounds to use commands.
-- Add votemap.
-- Translations support
-- Add dont change option
-- Nomination menu
+- [X] ~~Add minimum rounds to use commands.~~
+- [ ] Add votemap.
+- [x] ~~Translations support~~
+- [ ] Add dont change option
+- [x] ~~Nomination menu~~
+- [ ] Add end of map vote
+- [ ] Add timeleft command
+- [ ] Add currentmap command
+- [ ] Add nextmap command

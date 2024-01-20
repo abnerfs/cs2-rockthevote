@@ -9,18 +9,23 @@ namespace cs2_rockthevote
     public class RockTheVote : BasePlugin, IPluginConfig<Config>
     {
         public override string ModuleName => "RockTheVote";
-        public override string ModuleVersion => "0.0.5";
+        public override string ModuleVersion => "0.0.6";
         public override string ModuleAuthor => "abnerfs";
         public override string ModuleDescription => "You know what it is, rtv";
 
         CCSGameRules? _gameRules = null;
         ServerManager ServerManager = new();
-        NominationManager NominationManager = new();
-        AsyncVoteManager Rtv = null;
+        NominationManager? NominationManager = null;
+        AsyncVoteManager? Rtv = null;
         List<string> Maps = new();
+        VoteManager? voteManager = null;
 
         public Config? Config { get; set; }
 
+        public string Localize(string key, params object[] values)
+        {
+            return $"{Localizer["prefix"]}{Localizer[key, values]}";
+        }
 
         public bool WarmupRunning
         {
@@ -33,6 +38,17 @@ namespace cs2_rockthevote
             }
         }
 
+        public int RoundsPlayed
+        {
+            get
+            {
+                if (_gameRules is null)
+                    SetGameRules();
+
+                return _gameRules?.TotalRoundsPlayed ?? 0;
+            }
+        }
+
         void LoadMaps()
         {
             Maps = new List<string>();
@@ -40,12 +56,15 @@ namespace cs2_rockthevote
             if (!File.Exists(mapsFile))
                 throw new FileNotFoundException(mapsFile);
 
+
             Maps = File.ReadAllText(mapsFile)
                 .Replace("\r\n", "\n")
                 .Split("\n")
                 .Select(x => x.Trim())
-                .Where(x => !x.StartsWith("//"))
+                .Where(x => !string.IsNullOrWhiteSpace(x) && !x.StartsWith("//"))
                 .ToList();
+
+            NominationManager = new(this, Maps.ToArray());
         }
 
         public override void Load(bool hotReload)
@@ -56,7 +75,6 @@ namespace cs2_rockthevote
 
         void Init()
         {
-            NominationManager = new();
             LoadMaps();
             _gameRules = null;
             AddTimer(1.0F, SetGameRules);
@@ -73,15 +91,21 @@ namespace cs2_rockthevote
         {
             if (player is null || !player.IsValid) return false;
 
+            if(Config!.MinRounds > RoundsPlayed)
+            {
+                player!.PrintToChat(Localize("minimum-rounds", Config!.MinRounds));
+                return false;
+            }
+
             if (WarmupRunning && Config!.DisableVotesInWarmup)
             {
-                player.PrintToChat("[RockTheVote] Command disabled during warmup.");
+                player.PrintToChat(Localize("disabled-warmup"));
                 return false;
             }
 
             if (ServerManager.ValidPlayerCount < Config!.RtvMinPlayers)
             {
-                player.PrintToChat($"[RockTheVote] Minimum players to use this command is {Config.RtvMinPlayers}");
+                player.PrintToChat(Localize("minimum-players", Config.RtvMinPlayers));
                 return false;
             }
 
@@ -92,30 +116,24 @@ namespace cs2_rockthevote
         public HookResult EventPlayerDisconnect(EventPlayerDisconnect @event, GameEventInfo @eventInfo)
         {
             var userId = @event.Userid.UserId!.Value;
-            Rtv.RemoveVote(userId);
+            Rtv!.RemoveVote(userId);
+            NominationManager!.RemoveNominations(userId);
             return HookResult.Continue;
         }
 
         void NominateHandler(CCSPlayerController? player, string map)
         {
-            if (string.IsNullOrEmpty(map))
+            if(Rtv!.VotesAlreadyReached)
             {
-                player!.PrintToChat($"[RockTheVote] Usage: nominate <map-name>");
+                player!.PrintToChat(Localize("nomination-votes-reached"));
             }
-            else if (Maps.FirstOrDefault(x => x.ToLower() == map) is not null)
+            else if (string.IsNullOrEmpty(map))
             {
-                if (map == Server.MapName)
-                {
-                    player!.PrintToChat($"[RockTheVote] You can't nominate the current map");
-                    return;
-                }
-
-                NominationManager.Nominate(player.UserId!.Value, map);
-                Server.PrintToChatAll($"[RockTheVote] Player {player.PlayerName} nominated map {map}");
+                NominationManager!.OpenNominationMenu(player!);
             }
             else
             {
-                player!.PrintToChat($"[RockTheVote] Invalid map");
+                NominationManager!.Nominate(player, map);
             }
         }
 
@@ -149,24 +167,40 @@ namespace cs2_rockthevote
             if (!ValidateCommand(player))
                 return;
 
-            VoteResult result = Rtv.AddVote(player!.UserId!.Value);
+            VoteResult result = Rtv!.AddVote(player!.UserId!.Value);
             switch (result)
             {
                 case VoteResult.Added:
-                    Server.PrintToChatAll($"[RockTheVote] {player.PlayerName} wants to rock the vote ({Rtv.VoteCount} voted, {Rtv.RequiredVotes} needed)");
+                    Server.PrintToChatAll(Localize("rocked-the-vote", player.PlayerName, Rtv.VoteCount, Rtv.RequiredVotes));
                     break;
                 case VoteResult.AlreadyAddedBefore:
-                    player.PrintToChat($"[RockTheVote] You already rocked the vote ({Rtv.VoteCount} voted, {Rtv.RequiredVotes} needed)");
+                    Server.PrintToChatAll(Localize("already-rocked-the-vote", Rtv.VoteCount, Rtv.RequiredVotes));
                     break;
                 case VoteResult.VotesReached:
-                    Server.PrintToChatAll("[RockTheVote] Number of votes reached, the vote for the next map will start");
+                    Server.PrintToChatAll(Localize("starting-vote",player.PlayerName, Rtv.VoteCount, Rtv.RequiredVotes));
                     var mapsScrambled = Shuffle(new Random(), Maps.Where(x => x != Server.MapName).ToList());
-                    var maps = NominationManager.Votes().Concat(mapsScrambled).Distinct().ToList();
+                    var maps = NominationManager!.NominationWinners().Concat(mapsScrambled).Distinct().ToList();
                     var mapsToShow = Config!.MapsToShowInVote == 0 ? 5 : Config!.MapsToShowInVote;
-                    VoteManager manager = new(maps!, this, 30, ServerManager.ValidPlayerCount, mapsToShow);
-                    manager.StartVote();
+                    voteManager = new(maps!, this, 30, ServerManager.ValidPlayerCount, mapsToShow, Config.ChangeImmediatly);
+                    voteManager.StartVote();
                     break;
             }
+        }
+
+        [GameEventHandler(HookMode.Post)]
+        public HookResult OnRoundEnd(EventRoundEnd @event, GameEventInfo info)
+        {
+            if(voteManager?.ChangeNextMap() ?? false)
+                voteManager = null;
+            return HookResult.Continue;
+        }
+
+        [GameEventHandler(HookMode.Post)]
+        public HookResult OnRoundStart(EventRoundStart @event, GameEventInfo info)
+        {
+            if (voteManager?.ChangeNextMap() ?? false)
+                voteManager = null;
+            return HookResult.Continue;
         }
 
         [GameEventHandler(HookMode.Post)]

@@ -16,7 +16,7 @@
 
         public bool CheckVotes(int numberOfVotes)
         {
-            return numberOfVotes >= RequiredVotes;
+            return numberOfVotes > 0 && numberOfVotes >= RequiredVotes;
         }
     }
 }
