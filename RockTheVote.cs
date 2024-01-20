@@ -15,8 +15,8 @@ namespace cs2_rockthevote
 
         CCSGameRules? _gameRules = null;
         ServerManager ServerManager = new();
-        NominationManager NominationManager = new();
-        AsyncVoteManager Rtv = null;
+        NominationManager? NominationManager = null;
+        AsyncVoteManager? Rtv = null;
         List<string> Maps = new();
 
         public Config? Config { get; set; }
@@ -40,12 +40,15 @@ namespace cs2_rockthevote
             if (!File.Exists(mapsFile))
                 throw new FileNotFoundException(mapsFile);
 
+
             Maps = File.ReadAllText(mapsFile)
                 .Replace("\r\n", "\n")
                 .Split("\n")
                 .Select(x => x.Trim())
                 .Where(x => !x.StartsWith("//"))
                 .ToList();
+
+            NominationManager = new(Maps.ToArray());
         }
 
         public override void Load(bool hotReload)
@@ -56,7 +59,6 @@ namespace cs2_rockthevote
 
         void Init()
         {
-            NominationManager = new();
             LoadMaps();
             _gameRules = null;
             AddTimer(1.0F, SetGameRules);
@@ -92,30 +94,24 @@ namespace cs2_rockthevote
         public HookResult EventPlayerDisconnect(EventPlayerDisconnect @event, GameEventInfo @eventInfo)
         {
             var userId = @event.Userid.UserId!.Value;
-            Rtv.RemoveVote(userId);
+            Rtv!.RemoveVote(userId);
+            NominationManager!.RemoveNominations(userId);
             return HookResult.Continue;
         }
 
         void NominateHandler(CCSPlayerController? player, string map)
         {
-            if (string.IsNullOrEmpty(map))
+            if(Rtv!.VotesAlreadyReached)
             {
-                player!.PrintToChat($"[RockTheVote] Usage: nominate <map-name>");
+                player!.PrintToChat("[RockTheVote] Number of votes reached, nomination disabled");
             }
-            else if (Maps.FirstOrDefault(x => x.ToLower() == map) is not null)
+            else if (string.IsNullOrEmpty(map))
             {
-                if (map == Server.MapName)
-                {
-                    player!.PrintToChat($"[RockTheVote] You can't nominate the current map");
-                    return;
-                }
-
-                NominationManager.Nominate(player.UserId!.Value, map);
-                Server.PrintToChatAll($"[RockTheVote] Player {player.PlayerName} nominated map {map}");
+                NominationManager!.OpenNominationMenu(player!);
             }
             else
             {
-                player!.PrintToChat($"[RockTheVote] Invalid map");
+                NominationManager!.Nominate(player, map);
             }
         }
 
@@ -161,7 +157,7 @@ namespace cs2_rockthevote
                 case VoteResult.VotesReached:
                     Server.PrintToChatAll("[RockTheVote] Number of votes reached, the vote for the next map will start");
                     var mapsScrambled = Shuffle(new Random(), Maps.Where(x => x != Server.MapName).ToList());
-                    var maps = NominationManager.Votes().Concat(mapsScrambled).Distinct().ToList();
+                    var maps = NominationManager.NominationWinners().Concat(mapsScrambled).Distinct().ToList();
                     var mapsToShow = Config!.MapsToShowInVote == 0 ? 5 : Config!.MapsToShowInVote;
                     VoteManager manager = new(maps!, this, 30, ServerManager.ValidPlayerCount, mapsToShow);
                     manager.StartVote();
