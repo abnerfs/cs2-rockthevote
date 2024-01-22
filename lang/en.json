@@ -1,6 +1,9 @@
 {
   "prefix": "{red}[RocktheVote]{default} ",
+  "votemap-prefix": "{red}[Votemap]{default} ",
   "invalid-map": "Invalid map",
+  "voted-for-map": "Player {green}{0}{default} voted in map {1} ({2} voted, {3} needed)",
+  "already-voted-for-map": "You already voted in map {0} ({1} voted, {2} needed)",
   "nominate-current": "You can't nominate the current map",
   "nominated": "Player {green}{0}{default} nominated map {1}, now it has {2} vote(s)",
   "minimum-rounds": "Minimum rounds to use this command is {0}",

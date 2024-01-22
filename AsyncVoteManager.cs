@@ -3,13 +3,6 @@ using CounterStrikeSharp.API.Core;
 
 namespace cs2_rockthevote
 {
-    public enum VoteResult { 
-        Added,
-        AlreadyAddedBefore,
-        VotesAlreadyReached,
-        VotesReached
-    }
-
     public class AsyncVoteManager
     {
         private List<int> votes = new();

@@ -36,14 +36,14 @@ namespace cs2_rockthevote
         {
             if (Maps.FirstOrDefault(x => x.ToLower() == map) is null)
             {
-                player!.PrintToChat(Plugin.Localize("invalid-map"));
+                player!.PrintToChat(Plugin.LocalizeRTV("invalid-map"));
                 return;
             
             }
 
             if (map == Server.MapName)
             {
-                player!.PrintToChat(Plugin.Localize("nominate-current"));
+                player!.PrintToChat(Plugin.LocalizeRTV("nominate-current"));
                 return;
             }
 
@@ -57,7 +57,7 @@ namespace cs2_rockthevote
             var totalVotes = Nominations.Select(x => x.Value.Where(y => y == map).Count())
                 .Sum();
 
-            Server.PrintToChatAll(Plugin.Localize("nominated", player.PlayerName, map, totalVotes));
+            Server.PrintToChatAll(Plugin.LocalizeRTV("nominated", player.PlayerName, map, totalVotes));
         }
 
         public List<string> NominationWinners()

@@ -2,6 +2,7 @@
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Core.Attributes.Registration;
 using CounterStrikeSharp.API.Modules.Commands;
+using Microsoft.Extensions.DependencyInjection;
 using static CounterStrikeSharp.API.Core.Listeners;
 
 namespace cs2_rockthevote
@@ -9,7 +10,7 @@ namespace cs2_rockthevote
     public class RockTheVote : BasePlugin, IPluginConfig<Config>
     {
         public override string ModuleName => "RockTheVote";
-        public override string ModuleVersion => "0.0.6";
+        public override string ModuleVersion => "1.0.0";
         public override string ModuleAuthor => "abnerfs";
         public override string ModuleDescription => "You know what it is, rtv";
 
@@ -17,14 +18,26 @@ namespace cs2_rockthevote
         ServerManager ServerManager = new();
         NominationManager? NominationManager = null;
         AsyncVoteManager? Rtv = null;
-        List<string> Maps = new();
+        string[]? Maps = null;
         VoteManager? voteManager = null;
+        VotemapManager? votemapManager = null;
+        ChangeMapManager? changemapManager = null;
 
         public Config? Config { get; set; }
 
-        public string Localize(string key, params object[] values)
+        public string Localize(string prefix, string key, params object[] values)
         {
-            return $"{Localizer["prefix"]}{Localizer[key, values]}";
+            return $"{Localizer[prefix]}{Localizer[key, values]}";
+        }
+
+        public string LocalizeRTV(string key, params object[] values)
+        {
+            return Localize("prefix", key, values);
+        }
+
+        public string LocalizeVotemap(string key, params object[] values)
+        {
+            return Localize("votemap-prefix", key, values);
         }
 
         public bool WarmupRunning
@@ -51,20 +64,19 @@ namespace cs2_rockthevote
 
         void LoadMaps()
         {
-            Maps = new List<string>();
+            Maps = null;
             string mapsFile = Path.Combine(ModuleDirectory, "maplist.txt");
             if (!File.Exists(mapsFile))
                 throw new FileNotFoundException(mapsFile);
-
 
             Maps = File.ReadAllText(mapsFile)
                 .Replace("\r\n", "\n")
                 .Split("\n")
                 .Select(x => x.Trim())
                 .Where(x => !string.IsNullOrWhiteSpace(x) && !x.StartsWith("//"))
-                .ToList();
-
-            NominationManager = new(this, Maps.ToArray());
+                .ToArray();
+            
+            NominationManager = new(this, Maps);
         }
 
         public override void Load(bool hotReload)
@@ -75,6 +87,7 @@ namespace cs2_rockthevote
 
         void Init()
         {
+            changemapManager = new(this);
             LoadMaps();
             _gameRules = null;
             AddTimer(1.0F, SetGameRules);
@@ -82,6 +95,7 @@ namespace cs2_rockthevote
             {
                 AsyncVoteValidator validator = new(Config!.RtvVotePercentage, ServerManager);
                 Rtv = new AsyncVoteManager(validator);
+                votemapManager = new(Maps!, validator);
             }
         }
 
@@ -93,19 +107,19 @@ namespace cs2_rockthevote
 
             if(Config!.MinRounds > RoundsPlayed)
             {
-                player!.PrintToChat(Localize("minimum-rounds", Config!.MinRounds));
+                player!.PrintToChat(LocalizeRTV("minimum-rounds", Config!.MinRounds));
                 return false;
             }
 
             if (WarmupRunning && Config!.DisableVotesInWarmup)
             {
-                player.PrintToChat(Localize("disabled-warmup"));
+                player.PrintToChat(LocalizeRTV("disabled-warmup"));
                 return false;
             }
 
             if (ServerManager.ValidPlayerCount < Config!.RtvMinPlayers)
             {
-                player.PrintToChat(Localize("minimum-players", Config.RtvMinPlayers));
+                player.PrintToChat(LocalizeRTV("minimum-players", Config.RtvMinPlayers));
                 return false;
             }
 
@@ -125,7 +139,7 @@ namespace cs2_rockthevote
         {
             if(Rtv!.VotesAlreadyReached)
             {
-                player!.PrintToChat(Localize("nomination-votes-reached"));
+                player!.PrintToChat(LocalizeRTV("nomination-votes-reached"));
             }
             else if (string.IsNullOrEmpty(map))
             {
@@ -134,6 +148,33 @@ namespace cs2_rockthevote
             else
             {
                 NominationManager!.Nominate(player, map);
+            }
+        }
+
+        void VotemapHandler(CCSPlayerController? player, string map)
+        {
+            VoteResult result = votemapManager!.AddVote(player!.UserId!.Value, map);
+            switch (result)
+            {
+                case VoteResult.InvalidMap:
+                    player.PrintToChat(LocalizeVotemap("invalid-map"));
+                    break;
+                case VoteResult.Added:
+                    Server.PrintToChatAll(LocalizeVotemap("voted-for-map", player.PlayerName, Rtv.VoteCount, Rtv.RequiredVotes));
+                    break;
+                case VoteResult.AlreadyAddedBefore:
+                    Server.PrintToChatAll(LocalizeVotemap("already-voted-for-map", Rtv.VoteCount, Rtv.RequiredVotes));
+                    break;
+                case VoteResult.VotesReached:
+                    changemapManager!.ScheduleMapChange(VoteTypes.VoteMap, map);
+                    if (Config!.ChangeImmediatly)
+                        changemapManager!.ChangeNextMap();
+                    else
+                    {
+                        Server.PrintToChatAll(LocalizeVotemap("changing-map-next-round", map));
+                    }
+
+                    break;
             }
         }
 
@@ -171,17 +212,17 @@ namespace cs2_rockthevote
             switch (result)
             {
                 case VoteResult.Added:
-                    Server.PrintToChatAll(Localize("rocked-the-vote", player.PlayerName, Rtv.VoteCount, Rtv.RequiredVotes));
+                    Server.PrintToChatAll(LocalizeRTV("rocked-the-vote", player.PlayerName, Rtv.VoteCount, Rtv.RequiredVotes));
                     break;
                 case VoteResult.AlreadyAddedBefore:
-                    Server.PrintToChatAll(Localize("already-rocked-the-vote", Rtv.VoteCount, Rtv.RequiredVotes));
+                    Server.PrintToChatAll(LocalizeRTV("already-rocked-the-vote", Rtv.VoteCount, Rtv.RequiredVotes));
                     break;
                 case VoteResult.VotesReached:
-                    Server.PrintToChatAll(Localize("starting-vote",player.PlayerName, Rtv.VoteCount, Rtv.RequiredVotes));
+                    Server.PrintToChatAll(LocalizeRTV("starting-vote",player.PlayerName, Rtv.VoteCount, Rtv.RequiredVotes));
                     var mapsScrambled = Shuffle(new Random(), Maps.Where(x => x != Server.MapName).ToList());
                     var maps = NominationManager!.NominationWinners().Concat(mapsScrambled).Distinct().ToList();
                     var mapsToShow = Config!.MapsToShowInVote == 0 ? 5 : Config!.MapsToShowInVote;
-                    voteManager = new(maps!, this, 30, ServerManager.ValidPlayerCount, mapsToShow, Config.ChangeImmediatly);
+                    voteManager = new(maps!, this, 30, ServerManager.ValidPlayerCount, mapsToShow, Config.ChangeImmediatly, changeMapManager);
                     voteManager.StartVote();
                     break;
             }
@@ -190,16 +231,16 @@ namespace cs2_rockthevote
         [GameEventHandler(HookMode.Post)]
         public HookResult OnRoundEnd(EventRoundEnd @event, GameEventInfo info)
         {
-            if(voteManager?.ChangeNextMap() ?? false)
-                voteManager = null;
+            if(changemapManager?.ChangeNextMap() ?? false)
+                changemapManager = null;
             return HookResult.Continue;
         }
 
         [GameEventHandler(HookMode.Post)]
         public HookResult OnRoundStart(EventRoundStart @event, GameEventInfo info)
         {
-            if (voteManager?.ChangeNextMap() ?? false)
-                voteManager = null;
+            if (changemapManager?.ChangeNextMap() ?? false)
+                changemapManager = null;
             return HookResult.Continue;
         }
 

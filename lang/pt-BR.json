@@ -1,5 +1,6 @@
 {
   "prefix": "{red}[RocktheVote]{default} ",
+  "votemap-prefix": "{red}[Votemap]{default} ",
   "invalid-map": "Mapa inválido",
   "nominate-current": "Você não pode indicar o mapa atual",
   "nominated": "O jogador {green}{0}{default} indicou o mapa {1}, agora ele tem {2} voto(s)",
