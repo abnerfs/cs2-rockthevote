@@ -44,7 +44,6 @@ namespace cs2_rockthevote
         {
             foreach(var service in Dependencies)
             {
-                Console.WriteLine($"Calling OnMapStart on {service.GetType().Name}");
                 service.OnMapStart(mapName);
             }
         }
@@ -53,7 +52,6 @@ namespace cs2_rockthevote
         {
             foreach (var service in Dependencies)
             {
-                Console.WriteLine($"Calling OnPluginLoad on {service.GetType().Name}");
                 service.OnLoad(plugin);
             }
         }
@@ -62,7 +60,6 @@ namespace cs2_rockthevote
         {
             foreach (var service in Dependencies)
             {
-                Console.WriteLine($"Calling OnConfigParsed on {service.GetType().Name}");
                 service.OnConfigParsed(config);
             }
         }

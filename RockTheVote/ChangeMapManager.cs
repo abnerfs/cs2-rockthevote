@@ -34,11 +34,11 @@ namespace cs2_rockthevote
             if (!Scheduled)
                 return false;
 
-            var nextMap = _prefix;
-            Server.PrintToChatAll(_plugin.Localize(_prefix!, "changing-map", nextMap!));
+            var nextMap = _nextMap;
+            Server.PrintToChatAll(_plugin!.Localize(_prefix!, "changing-map", nextMap!));
             _plugin.AddTimer(3.0F, () =>
             {
-                if (Server.IsMapValid(nextMap))
+                if (Server.IsMapValid(nextMap!))
                 {
                     Server.ExecuteCommand($"changelevel {nextMap}");
                 }

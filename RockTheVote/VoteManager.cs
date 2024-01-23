@@ -109,14 +109,12 @@ namespace cs2_rockthevote
                 Server.PrintToChatAll(_plugin!.LocalizeRTV("vote-ended-no-votes", winner.Key));
             }
 
-            if (_config.ChangeImmediatly)
-            {
-                Server.PrintToChatAll(_plugin.LocalizeRTV("changing-map-next-round", winner.Key));
-            }
             PrintCenterTextAll(_plugin!.Localizer["vote-finished-hud", winner.Key]);
             _changeMapManager.ScheduleMapChange(VoteType.RTV, winner.Key);
             if (_config.ChangeImmediatly)
                 _changeMapManager.ChangeNextMap();
+            else
+                Server.PrintToChatAll(_plugin.LocalizeRTV("changing-map-next-round", winner.Key));
         }
 
 

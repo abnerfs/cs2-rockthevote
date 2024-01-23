@@ -9,6 +9,8 @@ namespace cs2_rockthevote
         {
             return Utilities.GetPlayers()
                 .Where(x => x.ReallyValid(considerBots))
+                .Where(x => !x.IsHLTV)
+                .Where(x => considerBots || !x.IsBot)
                 .ToArray();
         }
 
