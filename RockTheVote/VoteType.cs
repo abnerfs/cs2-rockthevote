@@ -1,6 +1,6 @@
 ﻿namespace cs2_rockthevote
 {
-    public enum VoteTypes
+    public enum VoteType
     {
         RTV,
         VoteMap

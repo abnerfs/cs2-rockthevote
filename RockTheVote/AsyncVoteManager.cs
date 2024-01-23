@@ -3,7 +3,7 @@ using CounterStrikeSharp.API.Core;
 
 namespace cs2_rockthevote
 {
-    public class AsyncVoteManager
+    public class AsyncVoteManager: IPluginDependency<RockTheVote, Config>
     {
         private List<int> votes = new();
         public int VoteCount => votes.Count;
@@ -12,6 +12,12 @@ namespace cs2_rockthevote
         public AsyncVoteManager(AsyncVoteValidator voteValidator)
         {
             VoteValidator = voteValidator;
+        }
+
+        public void OnMapStart(string _mapName)
+        {
+            votes.Clear();
+            VotesAlreadyReached = false;
         }
 
         private readonly AsyncVoteValidator VoteValidator;

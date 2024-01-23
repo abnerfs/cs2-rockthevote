@@ -14,7 +14,7 @@
 
   <ItemGroup>
     <Reference Include="CounterStrikeSharp.API">
-      <HintPath>..\..\..\..\..\CSSHARP\CounterStrikeSharp.API.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\CSSHARP\CounterStrikeSharp.API.dll</HintPath>
       <Private>False</Private>
     </Reference>
   </ItemGroup>
