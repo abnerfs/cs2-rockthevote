@@ -2,16 +2,16 @@
 {
     public class VotemapManager: IPluginDependency<RockTheVote, Config>
     {
-        private readonly MapLister _mapLister;
-        private readonly AsyncVoteValidator _voteValidator;
+        MapLister _mapLister;
 
         Dictionary<string, AsyncVoteManager> MapVotes = new();
+        VotemapConfig _config = new();
+
         public bool VotesReached { get; private set; } = false;
 
-        public VotemapManager(MapLister mapLister, AsyncVoteValidator voteValidator)
+        public VotemapManager(MapLister mapLister)
         {
             _mapLister = mapLister;
-            _voteValidator = voteValidator;
         }
 
         public void OnMapStart(string mapName)
@@ -20,19 +20,24 @@
             VotesReached = false;
         }
 
-        public VoteResult AddVote(int userId, string map)
+        public void OnConfigParsed(Config config)
+        {
+            _config = config.Votemap;
+        }
+
+        public VoteResultEnum AddVote(int userId, string map)
         {
             if (!_mapLister.Maps!.Contains(map))
-                return VoteResult.InvalidMap;
+                return VoteResultEnum.InvalidMap;
 
             if (!MapVotes.ContainsKey(map))
-                MapVotes[map] = new AsyncVoteManager(_voteValidator);
+                MapVotes[map] = new AsyncVoteManager(_config);
 
-            var result = MapVotes[map].AddVote(userId);
-            if (result == VoteResult.VotesReached)
+            VoteResult result = MapVotes[map].AddVote(userId);
+            if (result.Result == VoteResultEnum.VotesReached)
                 VotesReached = true;
 
-            return result;
+            return result.Result;
         }
     }
 }

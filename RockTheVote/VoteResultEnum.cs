@@ -1,6 +1,6 @@
 ﻿namespace cs2_rockthevote
 {
-    public enum VoteResult { 
+    public enum VoteResultEnum { 
         Added,
         AlreadyAddedBefore,
         VotesAlreadyReached,

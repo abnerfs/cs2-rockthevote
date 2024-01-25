@@ -2,24 +2,27 @@
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Menu;
 using CounterStrikeSharp.API.Modules.Timers;
+using Microsoft.Extensions.Localization;
 using System.Data;
 using System.Text;
 using Timer = CounterStrikeSharp.API.Modules.Timers.Timer;
 
 namespace cs2_rockthevote
 {
-    public class VoteManager: IPluginDependency<RockTheVote, Config>
+    public class EndMapVoteManager: IPluginDependency<RockTheVote, Config>
     {
-        public VoteManager(MapLister mapLister, ChangeMapManager changeMapManager, NominationManager nominationManager)
+        public EndMapVoteManager(MapLister mapLister, ChangeMapManager changeMapManager, NominationManager nominationManager, StringLocalizer localizer)
         {
             _mapLister = mapLister;
             _changeMapManager = changeMapManager;
             _nominationManager = nominationManager;
+            _localizer = localizer;
         }
 
         private readonly MapLister _mapLister;
         private readonly ChangeMapManager _changeMapManager;
         private readonly NominationManager _nominationManager;
+        private readonly StringLocalizer _localizer;
         private Timer? Timer;
 
         Dictionary<string, int> Votes = new();
@@ -27,19 +30,15 @@ namespace cs2_rockthevote
 
         List<string> mapsEllected = new();
 
-        private Config _config = new();
-        private RockTheVote? _plugin;
+        private EndOfMapConfig? _config = null;
         private int _canVote = 0;
+        private RockTheVote? _plugin;
 
-        public void OnConfigParsed(Config config)
-        {
-            _config = config;
-        }
-
-        public void OnLoad(RockTheVote plugin) 
+        public void OnLoad(RockTheVote plugin)
         {
             _plugin = plugin;
         }
+
 
         public void OnMapStart(string map)
         {
@@ -51,7 +50,7 @@ namespace cs2_rockthevote
         public void MapVoted(CCSPlayerController player, string mapName)
         {
             Votes[mapName] += 1;
-            player.PrintToChat(_plugin!.LocalizeRTV("you-voted", mapName));
+            player.PrintToChat(_localizer.LocalizeWithPrefix("emv.you-voted", mapName));
             VoteDisplayTick(timeLeft);
             if (Votes.Select(x => x.Value).Sum() >= _canVote)
             {
@@ -83,7 +82,7 @@ namespace cs2_rockthevote
         {
             int index = 1;
             StringBuilder stringBuilder = new();
-            stringBuilder.AppendLine(_plugin!.Localizer["vote-for-next-map-hud", time]);
+            stringBuilder.AppendLine(_localizer.Localize("emv.hud.hud-timer", time));
             foreach (var kv in Votes.OrderByDescending(x => x.Value).Take(2)) {
                 if(kv.Value > 0)
                     stringBuilder.AppendLine($"{index++} {kv.Key} ({kv.Value})");
@@ -100,21 +99,21 @@ namespace cs2_rockthevote
             var percent = totalVotes > 0 ?  (winner.Value / totalVotes) * 100 : 0;
             if(percent > 0)
             {
-                Server.PrintToChatAll(_plugin!.LocalizeRTV("vote-ended", winner.Key, percent, totalVotes));
+                Server.PrintToChatAll(_localizer.LocalizeWithPrefix("emv.vote-ended", winner.Key, percent, totalVotes));
             }
             else
             {
                 var rnd = new Random();
                 winner = Votes.ElementAt(rnd.Next(0, Votes.Count));
-                Server.PrintToChatAll(_plugin!.LocalizeRTV("vote-ended-no-votes", winner.Key));
+                Server.PrintToChatAll(_localizer.LocalizeWithPrefix("emv.vote-ended-no-votes", winner.Key));
             }
 
-            PrintCenterTextAll(_plugin!.Localizer["vote-finished-hud", winner.Key]);
-            _changeMapManager.ScheduleMapChange(VoteType.RTV, winner.Key);
-            if (_config.ChangeImmediatly)
+            PrintCenterTextAll(_localizer.Localize("emv.hud.finished", winner.Key));
+            _changeMapManager.ScheduleMapChange(winner.Key);
+            if (_config!.ChangeMapImmediatly)
                 _changeMapManager.ChangeNextMap();
             else
-                Server.PrintToChatAll(_plugin.LocalizeRTV("changing-map-next-round", winner.Key));
+                Server.PrintToChatAll(_localizer.LocalizeWithPrefix("general.changing-map-next-round", winner.Key));
         }
 
 
@@ -133,14 +132,15 @@ namespace cs2_rockthevote
 
         
 
-        public void StartVote()
+        public void StartVote(EndOfMapConfig config)
         {
-            var mapsToShow = _config!.MapsToShowInVote == 0 ? 5 : _config!.MapsToShowInVote;
+            _config = config;
+            var mapsToShow = _config!.MapsToShow == 0 ? 5 : _config!.MapsToShow;
             var mapsScrambled = Shuffle(new Random(), _mapLister.Maps!.Where(x => x != Server.MapName).ToList());
             mapsEllected = _nominationManager.NominationWinners().Concat(mapsScrambled).Distinct().ToList();
 
             _canVote = ServerManager.ValidPlayerCount();
-            ChatMenu menu = new(_plugin!.Localizer["vote-for-next-map"]);
+            ChatMenu menu = new(_localizer.Localize("emv.hud.menu-title"));
             foreach(var map in mapsEllected.Take(mapsToShow))
             {
                 Votes[map] = 0;
@@ -155,7 +155,7 @@ namespace cs2_rockthevote
                 }
             }
             timeLeft = _config.VoteDuration;
-            Timer = _plugin.AddTimer(1.0F, () =>
+            Timer = _plugin!.AddTimer(1.0F, () =>
             {
                 if (timeLeft <= 0)
                 {

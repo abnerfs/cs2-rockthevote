@@ -1,17 +1,17 @@
-﻿
-using CounterStrikeSharp.API.Core;
-
-namespace cs2_rockthevote
+﻿namespace cs2_rockthevote
 {
-    public class AsyncVoteManager: IPluginDependency<RockTheVote, Config>
+
+    public record VoteResult(VoteResultEnum Result, int VoteCount, int RequiredVotes);
+
+    public class AsyncVoteManager
     {
         private List<int> votes = new();
         public int VoteCount => votes.Count;
-        public int RequiredVotes => VoteValidator.RequiredVotes;
+        public int RequiredVotes => _voteValidator.RequiredVotes;
 
-        public AsyncVoteManager(AsyncVoteValidator voteValidator)
+        public AsyncVoteManager(IVoteConfig config)
         {
-            VoteValidator = voteValidator;
+            _voteValidator = new AsyncVoteValidator(config);
         }
 
         public void OnMapStart(string _mapName)
@@ -20,31 +20,31 @@ namespace cs2_rockthevote
             VotesAlreadyReached = false;
         }
 
-        private readonly AsyncVoteValidator VoteValidator;
+        private readonly AsyncVoteValidator _voteValidator;
 
         public bool VotesAlreadyReached { get; set; } = false;
 
         public VoteResult AddVote(int userId)
         {
             if (VotesAlreadyReached)
-                return VoteResult.VotesAlreadyReached;
+                return new VoteResult(VoteResultEnum.VotesAlreadyReached, VoteCount, RequiredVotes);
 
-            VoteResult? result = null;
+            VoteResultEnum? result = null;
             if (votes.IndexOf(userId) != -1)
-                result = VoteResult.AlreadyAddedBefore;
+                result = VoteResultEnum.AlreadyAddedBefore;
             else
             {
                 votes.Add(userId);
-                result = VoteResult.Added;
+                result = VoteResultEnum.Added;
             }
 
-            if(VoteValidator.CheckVotes(votes.Count))
+            if(_voteValidator.CheckVotes(votes.Count))
             {
                 VotesAlreadyReached = true;
-                return VoteResult.VotesReached;
+                return new VoteResult(VoteResultEnum.VotesReached, VoteCount, RequiredVotes);
             }
 
-            return result.Value;   
+            return new VoteResult(result.Value, VoteCount, RequiredVotes);   
         }
 
         public void RemoveVote(int userId)

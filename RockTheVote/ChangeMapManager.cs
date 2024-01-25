@@ -5,27 +5,27 @@ namespace cs2_rockthevote
     public class ChangeMapManager: IPluginDependency<RockTheVote, Config>
     {
         private RockTheVote? _plugin;
+        private StringLocalizer _localizer;
 
         private string? _nextMap { get; set; } = null;
-        private string? _prefix { get; set; } = null;
 
         public bool Scheduled { get; set; }
 
-        public ChangeMapManager()
+        public ChangeMapManager(StringLocalizer localizer)
         {
+            _localizer = localizer;
         }
 
-        public void ScheduleMapChange(VoteType voteType, string map)
+
+        public void ScheduleMapChange(string map)
         {
             _nextMap = map;
-            _prefix = voteType == VoteType.RTV ? "prefix" : "votemap-prefix";
             Scheduled = true;
         }
 
         void Clear()
         {
             _nextMap = null;
-            _prefix = null;
             Scheduled = false;
         }
 
@@ -35,7 +35,7 @@ namespace cs2_rockthevote
                 return false;
 
             var nextMap = _nextMap;
-            Server.PrintToChatAll(_plugin!.Localize(_prefix!, "changing-map", nextMap!));
+            Server.PrintToChatAll(_localizer.LocalizeWithPrefix("general.changing-map", nextMap!));
             _plugin.AddTimer(3.0F, () =>
             {
                 if (Server.IsMapValid(nextMap!))

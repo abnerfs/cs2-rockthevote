@@ -7,6 +7,7 @@ namespace cs2_rockthevote
     {
         public static CCSPlayerController[] ValidPlayers(bool considerBots = false)
         {
+            //considerBots = true;
             return Utilities.GetPlayers()
                 .Where(x => x.ReallyValid(considerBots))
                 .Where(x => !x.IsHLTV)

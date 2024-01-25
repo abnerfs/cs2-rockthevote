@@ -14,6 +14,7 @@ namespace cs2_rockthevote
             var di = new DependencyManager<RockTheVote, Config>();
             di.LoadDependencies(typeof(RockTheVote).Assembly);
             di.AddIt(serviceCollection);
+            serviceCollection.AddScoped<StringLocalizer>();
         }
     }
 
@@ -26,50 +27,30 @@ namespace cs2_rockthevote
 
 
         private readonly DependencyManager<RockTheVote, Config> _dependencyManager;
-        private readonly GameRules _gameRules;
         private readonly NominationManager _nominationManager;
         private readonly ChangeMapManager _changeMapManager;
-        private readonly VotemapManager? _votemapManager;
-        private readonly VoteManager _voteManager;
-        private readonly AsyncVoteManager _rtvManager;
-        private readonly MapLister _mapLister;
+        private readonly VotemapManager? _votemapManager;        
+        private readonly RtvManager _rtvManager;        
 
-        public RockTheVote(DependencyManager<RockTheVote, Config> dependencyManager, 
-            GameRules gameRules,
+        public RockTheVote(DependencyManager<RockTheVote, Config> dependencyManager,             
             NominationManager nominationManager,
             ChangeMapManager changeMapManager,
-            VotemapManager voteMapManager,
-            VoteManager voteManager,
-            AsyncVoteManager rtvManager,
-            MapLister mapLister)
+            VotemapManager voteMapManager,            
+            RtvManager rtvManager)
         {
             _dependencyManager = dependencyManager;
-            _gameRules = gameRules;
             _nominationManager = nominationManager;
             _changeMapManager = changeMapManager;
             _votemapManager = voteMapManager;
-            _voteManager = voteManager;
-            _rtvManager = rtvManager;
-            _mapLister = mapLister;
+            _rtvManager = rtvManager;            
         }
 
         public Config? Config { get; set; }
 
         public string Localize(string prefix, string key, params object[] values)
         {
-            return $"{Localizer[prefix]}{Localizer[key, values]}";
+            return $"{Localizer[prefix]} {Localizer[key, values]}";
         }
-
-        public string LocalizeRTV(string key, params object[] values)
-        {
-            return Localize("prefix", key, values);
-        }
-
-        public string LocalizeVotemap(string key, params object[] values)
-        {
-            return Localize("votemap-prefix", key, values);
-        }
-
         public override void Load(bool hotReload)
         {
             _dependencyManager.OnPluginLoad(this);
@@ -77,55 +58,16 @@ namespace cs2_rockthevote
         }
 
 
-        bool ValidateCommand(CCSPlayerController? player)
-        {
-            if (player is null || !player.IsValid) return false;
-
-            if (Config!.MinRounds > _gameRules.TotalRoundsPlayed)
-            {
-                player!.PrintToChat(LocalizeRTV("minimum-rounds", Config!.MinRounds));
-                return false;
-            }
-
-            if (_gameRules.WarmupRunning && Config!.DisableVotesInWarmup)
-            {
-                player.PrintToChat(LocalizeRTV("disabled-warmup"));
-                return false;
-            }
-
-            if (ServerManager.ValidPlayerCount() < Config!.RtvMinPlayers)
-            {
-                player.PrintToChat(LocalizeRTV("minimum-players", Config.RtvMinPlayers));
-                return false;
-            }
-
-            return true;
-        }
 
         [GameEventHandler(HookMode.Pre)]
         public HookResult EventPlayerDisconnect(EventPlayerDisconnect @event, GameEventInfo @eventInfo)
         {
-            var userId = @event.Userid.UserId!.Value;
-            _rtvManager.RemoveVote(userId);
-            _nominationManager.RemoveNominations(userId);
+            var player = @event.Userid;
+            _rtvManager.PlayerDisconnected(player);
+            _nominationManager.PlayerDisconnected(player);
             return HookResult.Continue;
         }
 
-        void NominateHandler(CCSPlayerController? player, string map)
-        {
-            if (_rtvManager!.VotesAlreadyReached)
-            {
-                player!.PrintToChat(LocalizeRTV("nomination-votes-reached"));
-            }
-            else if (string.IsNullOrEmpty(map))
-            {
-                _nominationManager.OpenNominationMenu(player!);
-            }
-            else
-            {
-                _nominationManager.Nominate(player, map);
-            }
-        }
 
         //void VotemapHandler(CCSPlayerController? player, string map)
         //{
@@ -157,34 +99,15 @@ namespace cs2_rockthevote
         [ConsoleCommand("nominate", "nominate a map to rtv")]
         public void OnNominate(CCSPlayerController? player, CommandInfo command)
         {
-            if (!ValidateCommand(player))
-                return;
-
             string map = command.GetArg(1).Trim().ToLower();
-            NominateHandler(player, map);
+            _nominationManager.CommandHandler(player!, map);
         }
 
 
         [ConsoleCommand("rtv", "Votes to rock the vote")]
         public void OnRTV(CCSPlayerController? player, CommandInfo? command)
         {
-            if (!ValidateCommand(player))
-                return;
-
-            VoteResult result = _rtvManager!.AddVote(player!.UserId!.Value);
-            switch (result)
-            {
-                case VoteResult.Added:
-                    Server.PrintToChatAll(LocalizeRTV("rocked-the-vote", player.PlayerName, _rtvManager.VoteCount, _rtvManager.RequiredVotes));
-                    break;
-                case VoteResult.AlreadyAddedBefore:
-                    Server.PrintToChatAll(LocalizeRTV("already-rocked-the-vote", _rtvManager.VoteCount, _rtvManager.RequiredVotes));
-                    break;
-                case VoteResult.VotesReached:
-                    Server.PrintToChatAll(LocalizeRTV("starting-vote", player.PlayerName, _rtvManager.VoteCount, _rtvManager.RequiredVotes));
-                    _voteManager.StartVote();
-                    break;
-            }
+            _rtvManager.CommandHandler(player!);
         }
 
         [GameEventHandler(HookMode.Post)]
@@ -209,19 +132,13 @@ namespace cs2_rockthevote
             var text = @event.Text.Trim().ToLower();
             if (@event.Text.Trim() == "rtv")
             {
-                if (!ValidateCommand(player))
-                    return HookResult.Continue;
-
-                OnRTV(player, null);
+                _rtvManager.CommandHandler(player);
             }
             else if (text.StartsWith("nominate"))
             {
-                if (!ValidateCommand(player))
-                    return HookResult.Continue;
-
                 var split = text.Split("nominate");
                 var map = split.Length > 1 ? split[1].Trim() : "";
-                NominateHandler(player, map);
+                _nominationManager.CommandHandler(player, map);
             }
 
             return HookResult.Continue;

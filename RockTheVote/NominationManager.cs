@@ -10,18 +10,29 @@ namespace cs2_rockthevote
         Dictionary<int, List<string>> Nominations = new();
         ChatMenu? nominationMenu = null;
         private RockTheVote? _plugin;
-        private readonly MapLister _mapLister;
+        private RtvConfig _config = new();
+        private GameRules _gamerules;
+        private StringLocalizer _localizer;
+        private MapLister _mapLister;
 
-        public NominationManager(MapLister mapLister)
+        public NominationManager(MapLister mapLister, GameRules gamerules, StringLocalizer localizer)
         {
             _mapLister = mapLister;
             _mapLister.EventMapsLoaded += OnMapsLoaded;
+            _gamerules = gamerules;
+            _localizer = localizer;
         }
 
         public void OnLoad(RockTheVote plugin)
         {
             _plugin = plugin;
         }
+
+        public void OnConfigParsed(Config config)
+        {
+            _config = config.Rtv;
+        }
+
 
 
         public void OnMapsLoaded(object? sender, string[] maps)
@@ -36,23 +47,53 @@ namespace cs2_rockthevote
             }
         }
 
+        public void CommandHandler(CCSPlayerController player, string map)
+        {
+            if (!_config.EnabledInWarmup && _gamerules.WarmupRunning)
+            {
+                player.PrintToChat(_localizer.LocalizeWithPrefix("general.validation.warmup"));
+                return;
+            }
+
+            if (ServerManager.ValidPlayerCount() < _config!.MinPlayers)
+            {
+                player.PrintToChat(_localizer.LocalizeWithPrefix("general.validation.minimum-players", _config!.MinPlayers));
+                return;
+            }
+
+            if (_config.MinRounds > _gamerules.TotalRoundsPlayed)
+            {
+                player!.PrintToChat(_localizer.LocalizeWithPrefix("general.validation.minimum-rounds", _config.MinRounds));
+                return;
+            }
+
+            if (string.IsNullOrEmpty(map))
+            {
+                OpenNominationMenu(player!);
+            }
+            else
+            {
+                Nominate(player, map);
+            }
+        }
+
         public void OpenNominationMenu(CCSPlayerController player)
         {
             ChatMenus.OpenMenu(player!, nominationMenu!);
         }
 
-        public void Nominate(CCSPlayerController player, string map)
+        void Nominate(CCSPlayerController player, string map)
         {
             if (_mapLister.Maps!.FirstOrDefault(x => x.ToLower() == map) is null)
             {
-                player!.PrintToChat(_plugin!.LocalizeRTV("invalid-map"));
+                player!.PrintToChat(_localizer.LocalizeWithPrefix("general.invalid-map"));
                 return;
             
             }
 
             if (map == Server.MapName)
             {
-                player!.PrintToChat(_plugin!.LocalizeRTV("nominate-current"));
+                player!.PrintToChat(_localizer.LocalizeWithPrefix("general.validation.current-map"));
                 return;
             }
 
@@ -66,7 +107,7 @@ namespace cs2_rockthevote
             var totalVotes = Nominations.Select(x => x.Value.Where(y => y == map).Count())
                 .Sum();
 
-            Server.PrintToChatAll(_plugin!.LocalizeRTV("nominated", player.PlayerName, map, totalVotes));
+            Server.PrintToChatAll(_localizer.LocalizeWithPrefix("nominate.nominated", player.PlayerName, map, totalVotes));
         }
 
         public List<string> NominationWinners()
@@ -86,8 +127,9 @@ namespace cs2_rockthevote
                 .ToList();
         }
 
-        public void RemoveNominations(int userId)
+        public void PlayerDisconnected(CCSPlayerController player)
         {
+            int userId = player.UserId!.Value;
             if (!Nominations.ContainsKey(userId))
                 Nominations.Remove(userId);
         }
