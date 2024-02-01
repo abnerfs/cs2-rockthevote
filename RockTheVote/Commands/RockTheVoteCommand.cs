@@ -1,11 +1,21 @@
 ﻿
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
-using Microsoft.Extensions.Localization;
+using CounterStrikeSharp.API.Core.Attributes.Registration;
+using CounterStrikeSharp.API.Modules.Commands;
 
 namespace cs2_rockthevote
 {
-    public class RtvManager : IPluginDependency<RockTheVote, Config>
+    public partial class Plugin
+    {
+        [ConsoleCommand("rtv", "Votes to rock the vote")]
+        public void OnRTV(CCSPlayerController? player, CommandInfo? command)
+        {
+            _rtvManager.CommandHandler(player!);
+        }
+    }
+
+    public class RockTheVoteCommand : IPluginDependency<Plugin, Config>
     {
         private readonly StringLocalizer _localizer;
         private readonly GameRules _gameRules;
@@ -14,14 +24,12 @@ namespace cs2_rockthevote
         private AsyncVoteManager? _voteManager;
         public bool VotesAlreadyReached => _voteManager!.VotesAlreadyReached;
 
-        public RtvManager(GameRules gameRules, EndMapVoteManager endmapVoteManager, StringLocalizer localizer)
+        public RockTheVoteCommand(GameRules gameRules, EndMapVoteManager endmapVoteManager, StringLocalizer localizer)
         {
             _localizer = localizer;
             _gameRules = gameRules;
             _endmapVoteManager = endmapVoteManager;
         }
-
-
 
         public void OnMapStart(string map)
         {

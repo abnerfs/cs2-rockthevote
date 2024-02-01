@@ -26,7 +26,6 @@ namespace cs2_rockthevote
             foreach (var type in TypesToAdd)
             {
                 collection.AddSingleton(type);
-                Console.WriteLine(type.Name);
             }
 
             collection.AddSingleton(p =>

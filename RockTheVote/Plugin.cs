@@ -1,24 +1,23 @@
 ﻿using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Core.Attributes.Registration;
-using CounterStrikeSharp.API.Modules.Commands;
 using Microsoft.Extensions.DependencyInjection;
 using static CounterStrikeSharp.API.Core.Listeners;
 
 namespace cs2_rockthevote
 {
-    public class RockTheVoteDependencyInjection : IPluginServiceCollection<RockTheVote>
+    public class PluginDependencyInjection : IPluginServiceCollection<Plugin>
     {
         public void ConfigureServices(IServiceCollection serviceCollection)
         {
-            var di = new DependencyManager<RockTheVote, Config>();
-            di.LoadDependencies(typeof(RockTheVote).Assembly);
+            var di = new DependencyManager<Plugin, Config>();
+            di.LoadDependencies(typeof(Plugin).Assembly);
             di.AddIt(serviceCollection);
             serviceCollection.AddScoped<StringLocalizer>();
         }
     }
 
-    public class RockTheVote : BasePlugin, IPluginConfig<Config>
+    public partial class Plugin : BasePlugin, IPluginConfig<Config>
     {
         public override string ModuleName => "RockTheVote";
         public override string ModuleVersion => "1.0.0";
@@ -26,17 +25,17 @@ namespace cs2_rockthevote
         public override string ModuleDescription => "You know what it is, rtv";
 
 
-        private readonly DependencyManager<RockTheVote, Config> _dependencyManager;
-        private readonly NominationManager _nominationManager;
+        private readonly DependencyManager<Plugin, Config> _dependencyManager;
+        private readonly NominationCommand _nominationManager;
         private readonly ChangeMapManager _changeMapManager;
-        private readonly VotemapManager? _votemapManager;        
-        private readonly RtvManager _rtvManager;        
+        private readonly VotemapCommand _votemapManager;        
+        private readonly RockTheVoteCommand _rtvManager;        
 
-        public RockTheVote(DependencyManager<RockTheVote, Config> dependencyManager,             
-            NominationManager nominationManager,
+        public Plugin(DependencyManager<Plugin, Config> dependencyManager,             
+            NominationCommand nominationManager,
             ChangeMapManager changeMapManager,
-            VotemapManager voteMapManager,            
-            RtvManager rtvManager)
+            VotemapCommand voteMapManager,            
+            RockTheVoteCommand rtvManager)
         {
             _dependencyManager = dependencyManager;
             _nominationManager = nominationManager;
@@ -58,57 +57,16 @@ namespace cs2_rockthevote
         }
 
 
-
         [GameEventHandler(HookMode.Pre)]
         public HookResult EventPlayerDisconnect(EventPlayerDisconnect @event, GameEventInfo @eventInfo)
         {
             var player = @event.Userid;
             _rtvManager.PlayerDisconnected(player);
             _nominationManager.PlayerDisconnected(player);
+            _votemapManager.PlayerDisconnected(player);
             return HookResult.Continue;
         }
 
-
-        //void VotemapHandler(CCSPlayerController? player, string map)
-        //{
-        //    VoteResult result = _votemapManager!.AddVote(player!.UserId!.Value, map);
-        //    switch (result)
-        //    {
-        //        case VoteResult.InvalidMap:
-        //            player.PrintToChat(LocalizeVotemap("invalid-map"));
-        //            break;
-        //        case VoteResult.Added:
-        //            Server.PrintToChatAll(LocalizeVotemap("voted-for-map", player.PlayerName, _votemapManager.VoteCount, _votemapManager.RequiredVotes));
-        //            break;
-        //        case VoteResult.AlreadyAddedBefore:
-        //            Server.PrintToChatAll(LocalizeVotemap("already-voted-for-map", _votemapManager.VoteCount, _votemapManager.RequiredVotes));
-        //            break;
-        //        case VoteResult.VotesReached:
-        //            _changeMapManager!.ScheduleMapChange(VoteType.VoteMap, map);
-        //            if (Config!.ChangeImmediatly)
-        //                _changeMapManager!.ChangeNextMap();
-        //            else
-        //            {
-        //                Server.PrintToChatAll(LocalizeVotemap("changing-map-next-round", map));
-        //            }
-
-        //            break;
-        //    }
-        //}
-
-        [ConsoleCommand("nominate", "nominate a map to rtv")]
-        public void OnNominate(CCSPlayerController? player, CommandInfo command)
-        {
-            string map = command.GetArg(1).Trim().ToLower();
-            _nominationManager.CommandHandler(player!, map);
-        }
-
-
-        [ConsoleCommand("rtv", "Votes to rock the vote")]
-        public void OnRTV(CCSPlayerController? player, CommandInfo? command)
-        {
-            _rtvManager.CommandHandler(player!);
-        }
 
         [GameEventHandler(HookMode.Post)]
         public HookResult OnRoundEnd(EventRoundEnd @event, GameEventInfo info)
@@ -140,7 +98,12 @@ namespace cs2_rockthevote
                 var map = split.Length > 1 ? split[1].Trim() : "";
                 _nominationManager.CommandHandler(player, map);
             }
-
+            else if (text.StartsWith("votemap"))
+            {
+                var split = text.Split("votemap");
+                var map = split.Length > 1 ? split[1].Trim() : "";
+                _nominationManager.CommandHandler(player, map);
+            }
             return HookResult.Continue;
         }
 

@@ -2,7 +2,7 @@
 
 namespace cs2_rockthevote
 {
-    public class MapLister: IPluginDependency<RockTheVote, Config>
+    public class MapLister: IPluginDependency<Plugin, Config>
     {
         public string[]? Maps { get; private set;} = null;
         public bool MapsLoaded { get; private set; } = false;
@@ -20,7 +20,7 @@ namespace cs2_rockthevote
             Maps = null;
         }
 
-        public void OnLoad(RockTheVote plugin)
+        public void OnLoad(Plugin plugin)
         {
             Clear();
             string mapsFile = Path.Combine(plugin.ModulePath, "../maplist.txt");

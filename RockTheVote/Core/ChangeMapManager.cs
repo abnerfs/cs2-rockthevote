@@ -2,9 +2,9 @@
 
 namespace cs2_rockthevote
 {
-    public class ChangeMapManager: IPluginDependency<RockTheVote, Config>
+    public class ChangeMapManager: IPluginDependency<Plugin, Config>
     {
-        private RockTheVote? _plugin;
+        private Plugin? _plugin;
         private StringLocalizer _localizer;
 
         private string? _nextMap { get; set; } = null;
@@ -49,7 +49,7 @@ namespace cs2_rockthevote
             return true;
         }
 
-        public void OnLoad(RockTheVote plugin)
+        public void OnLoad(Plugin plugin)
         {
             _plugin = plugin;
         }

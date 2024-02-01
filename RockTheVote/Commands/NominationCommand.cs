@@ -1,21 +1,32 @@
 ﻿
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
+using CounterStrikeSharp.API.Core.Attributes.Registration;
+using CounterStrikeSharp.API.Modules.Commands;
 using CounterStrikeSharp.API.Modules.Menu;
 
 namespace cs2_rockthevote
 {
-    public class NominationManager: IPluginDependency<RockTheVote, Config>
+    public partial class Plugin
+    {
+        [ConsoleCommand("nominate", "nominate a map to rtv")]
+        public void OnNominate(CCSPlayerController? player, CommandInfo command)
+        {
+            string map = command.GetArg(1).Trim().ToLower();
+            _nominationManager.CommandHandler(player!, map);
+        }
+    }
+
+    public class NominationCommand: IPluginDependency<Plugin, Config>
     {
         Dictionary<int, List<string>> Nominations = new();
         ChatMenu? nominationMenu = null;
-        private RockTheVote? _plugin;
         private RtvConfig _config = new();
         private GameRules _gamerules;
         private StringLocalizer _localizer;
         private MapLister _mapLister;
 
-        public NominationManager(MapLister mapLister, GameRules gamerules, StringLocalizer localizer)
+        public NominationCommand(MapLister mapLister, GameRules gamerules, StringLocalizer localizer)
         {
             _mapLister = mapLister;
             _mapLister.EventMapsLoaded += OnMapsLoaded;
@@ -23,9 +34,10 @@ namespace cs2_rockthevote
             _localizer = localizer;
         }
 
-        public void OnLoad(RockTheVote plugin)
+
+        public void OnMapStart(string map) 
         {
-            _plugin = plugin;
+            Nominations.Clear();
         }
 
         public void OnConfigParsed(Config config)
@@ -34,11 +46,10 @@ namespace cs2_rockthevote
         }
 
 
-
         public void OnMapsLoaded(object? sender, string[] maps)
         {
             nominationMenu = new("Nomination");
-            foreach (var map in _mapLister.Maps!)
+            foreach (var map in _mapLister.Maps!.Where(x => x != Server.MapName))
             {
                 nominationMenu.AddMenuOption(map, (CCSPlayerController player, ChatMenuOption option) =>
                 {
@@ -49,6 +60,7 @@ namespace cs2_rockthevote
 
         public void CommandHandler(CCSPlayerController player, string map)
         {
+            map = map.ToLower().Trim();
             if (!_config.EnabledInWarmup && _gamerules.WarmupRunning)
             {
                 player.PrintToChat(_localizer.LocalizeWithPrefix("general.validation.warmup"));

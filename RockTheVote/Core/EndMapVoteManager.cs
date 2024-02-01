@@ -2,16 +2,15 @@
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Menu;
 using CounterStrikeSharp.API.Modules.Timers;
-using Microsoft.Extensions.Localization;
 using System.Data;
 using System.Text;
 using Timer = CounterStrikeSharp.API.Modules.Timers.Timer;
 
 namespace cs2_rockthevote
 {
-    public class EndMapVoteManager: IPluginDependency<RockTheVote, Config>
+    public class EndMapVoteManager: IPluginDependency<Plugin, Config>
     {
-        public EndMapVoteManager(MapLister mapLister, ChangeMapManager changeMapManager, NominationManager nominationManager, StringLocalizer localizer)
+        public EndMapVoteManager(MapLister mapLister, ChangeMapManager changeMapManager, NominationCommand nominationManager, StringLocalizer localizer)
         {
             _mapLister = mapLister;
             _changeMapManager = changeMapManager;
@@ -21,7 +20,7 @@ namespace cs2_rockthevote
 
         private readonly MapLister _mapLister;
         private readonly ChangeMapManager _changeMapManager;
-        private readonly NominationManager _nominationManager;
+        private readonly NominationCommand _nominationManager;
         private readonly StringLocalizer _localizer;
         private Timer? Timer;
 
@@ -32,9 +31,9 @@ namespace cs2_rockthevote
 
         private EndOfMapConfig? _config = null;
         private int _canVote = 0;
-        private RockTheVote? _plugin;
+        private Plugin? _plugin;
 
-        public void OnLoad(RockTheVote plugin)
+        public void OnLoad(Plugin plugin)
         {
             _plugin = plugin;
         }
@@ -116,7 +115,6 @@ namespace cs2_rockthevote
                 Server.PrintToChatAll(_localizer.LocalizeWithPrefix("general.changing-map-next-round", winner.Key));
         }
 
-
         IList<T> Shuffle<T>(Random rng, IList<T> array)
         {
             int n = array.Count;
@@ -129,8 +127,6 @@ namespace cs2_rockthevote
             }
             return array;
         }
-
-        
 
         public void StartVote(EndOfMapConfig config)
         {
