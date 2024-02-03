@@ -25,6 +25,7 @@ namespace cs2_rockthevote
 
     public class RtvConfig : EndOfMapConfig, ICommandConfig, IVoteConfig
     {
+        public bool Enabled { get; set; } = true;
         public int VotePercentage { get; set; } = 60;
         public bool EnabledInWarmup { get; set; } = true;
         public int MinPlayers { get; set; } = 0;
@@ -33,6 +34,7 @@ namespace cs2_rockthevote
 
     public class VotemapConfig : ICommandConfig, IVoteConfig
     {
+        public bool Enabled { get; set; } = true;
         public int VotePercentage { get; set; } = 60;
         public bool ChangeMapImmediatly { get; set; } = true;
         public bool EnabledInWarmup { get; set; } = true;
