@@ -2,6 +2,7 @@
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Core.Attributes.Registration;
+using CounterStrikeSharp.API.Core.Plugin;
 using CounterStrikeSharp.API.Modules.Commands;
 using CounterStrikeSharp.API.Modules.Menu;
 
@@ -24,14 +25,16 @@ namespace cs2_rockthevote
         private RtvConfig _config = new();
         private GameRules _gamerules;
         private StringLocalizer _localizer;
+        private PluginState _pluginState;
         private MapLister _mapLister;
 
-        public NominationCommand(MapLister mapLister, GameRules gamerules, StringLocalizer localizer)
+        public NominationCommand(MapLister mapLister, GameRules gamerules, StringLocalizer localizer, PluginState pluginState)
         {
             _mapLister = mapLister;
             _mapLister.EventMapsLoaded += OnMapsLoaded;
             _gamerules = gamerules;
             _localizer = localizer;
+            _pluginState = pluginState;
         }
 
 
@@ -61,6 +64,12 @@ namespace cs2_rockthevote
         public void CommandHandler(CCSPlayerController player, string map)
         {
             map = map.ToLower().Trim();
+            if (_pluginState.DisableCommands)
+            {
+                player.PrintToChat(_localizer.LocalizeWithPrefix("general.validation.disabled"));
+                return;
+            }
+
             if (!_config.EnabledInWarmup && _gamerules.WarmupRunning)
             {
                 player.PrintToChat(_localizer.LocalizeWithPrefix("general.validation.warmup"));

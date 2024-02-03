@@ -20,15 +20,17 @@ namespace cs2_rockthevote
         private readonly StringLocalizer _localizer;
         private readonly GameRules _gameRules;
         private EndMapVoteManager _endmapVoteManager;
+        private PluginState _pluginState;
         private RtvConfig _config = new();
         private AsyncVoteManager? _voteManager;
         public bool VotesAlreadyReached => _voteManager!.VotesAlreadyReached;
 
-        public RockTheVoteCommand(GameRules gameRules, EndMapVoteManager endmapVoteManager, StringLocalizer localizer)
+        public RockTheVoteCommand(GameRules gameRules, EndMapVoteManager endmapVoteManager, StringLocalizer localizer, PluginState pluginState)
         {
             _localizer = localizer;
             _gameRules = gameRules;
             _endmapVoteManager = endmapVoteManager;
+            _pluginState = pluginState;
         }
 
         public void OnMapStart(string map)
@@ -38,6 +40,12 @@ namespace cs2_rockthevote
 
         public void CommandHandler(CCSPlayerController player)
         {
+            if(_pluginState.DisableCommands)
+            {
+                player.PrintToChat(_localizer.LocalizeWithPrefix("general.validation.disabled"));
+                return;
+            }
+
             if(!_config.EnabledInWarmup && _gameRules.WarmupRunning)
             {
                 player.PrintToChat(_localizer.LocalizeWithPrefix("general.validation.warmup"));

@@ -1,6 +1,6 @@
 {
   "rtv.prefix": "{red}[RockTheVote]{default}",
-  "votemap.player-voted": "Player {green}{0}{default} voted",
+  "votemap.player-voted": "Player {green}{0}{default} voted in {green}{1}{default}",
   "votemap.already-voted": "You already voted",
   "votemap.in-the-map": "in the map {0}",
   "votemap.changing-map": "Changing map to {green}{0}",
@@ -12,7 +12,7 @@
   "general.validation.minimum-rounds": "Minimum rounds to use this command is {0}",
   "general.validation.warmup": "Command disabled during warmup.",
   "general.validation.minimum-players": "Minimum players to use this command is {0}",
-  "nominate.disabled": "Nominate is disabled right now",
+  "general.validation.disabled": "Command disabled right now",
   "rtv.rocked-the-vote": "Player {green}{0}{default} wants to rock the vote",
   "rtv.already-rocked-the-vote": "You already rocked the vote",
   "rtv.votes-reached": "Number of votes reached, starting vote...",

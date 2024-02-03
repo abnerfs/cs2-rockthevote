@@ -1,6 +1,7 @@
 ﻿using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Core.Attributes.Registration;
+using CounterStrikeSharp.API.Core.Plugin;
 using CounterStrikeSharp.API.Modules.Commands;
 using CounterStrikeSharp.API.Modules.Menu;
 
@@ -24,15 +25,17 @@ namespace cs2_rockthevote
         private GameRules _gamerules;
         private StringLocalizer _localizer;
         private ChangeMapManager _changeMapManager;
+        private PluginState _pluginState;
         private MapLister _mapLister;
 
-        public VotemapCommand(MapLister mapLister, GameRules gamerules, StringLocalizer localizer, ChangeMapManager changeMapManager)
+        public VotemapCommand(MapLister mapLister, GameRules gamerules, StringLocalizer localizer, ChangeMapManager changeMapManager, PluginState pluginState)
         {
             _mapLister = mapLister;
             _mapLister.EventMapsLoaded += OnMapsLoaded;
             _gamerules = gamerules;
             _localizer = localizer;
             _changeMapManager = changeMapManager;
+            _pluginState = pluginState;
         }
 
         public void OnMapStart(string map)
@@ -61,6 +64,12 @@ namespace cs2_rockthevote
         public void CommandHandler(CCSPlayerController player, string map)
         {
             map = map.ToLower().Trim();
+            if (_pluginState.DisableCommands)
+            {
+                player.PrintToChat(_localizer.LocalizeWithPrefix("general.validation.disabled"));
+                return;
+            }
+
             if (!_config.EnabledInWarmup && _gamerules.WarmupRunning)
             {
                 player.PrintToChat(_localizer.LocalizeWithPrefix("general.validation.warmup"));
@@ -117,7 +126,7 @@ namespace cs2_rockthevote
             switch (result.Result)
             {
                 case VoteResultEnum.Added:
-                    Server.PrintToChatAll($"{_localizer.LocalizeWithPrefix("votemap.player-voted", player.PlayerName)} {_localizer.Localize("general.votes-needed", result.VoteCount, result.RequiredVotes)}");
+                    Server.PrintToChatAll($"{_localizer.LocalizeWithPrefix("votemap.player-voted", player.PlayerName, map)} {_localizer.Localize("general.votes-needed", result.VoteCount, result.RequiredVotes)}");
                     break;
                 case VoteResultEnum.AlreadyAddedBefore:
                     player.PrintToChat($"{_localizer.LocalizeWithPrefix("votemap.already-voted")} {_localizer.Localize("general.votes-needed", result.VoteCount, result.RequiredVotes)}");
@@ -126,7 +135,7 @@ namespace cs2_rockthevote
                     player.PrintToChat(_localizer.LocalizeWithPrefix("votemap.disabled"));
                     break;
                 case VoteResultEnum.VotesReached:
-                    Server.PrintToChatAll($"{_localizer.LocalizeWithPrefix("votemap.player-voted", player.PlayerName)} {_localizer.Localize("general.votes-needed", result.VoteCount, result.RequiredVotes)}");
+                    Server.PrintToChatAll($"{_localizer.LocalizeWithPrefix("votemap.player-voted", player.PlayerName, map)} {_localizer.Localize("general.votes-needed", result.VoteCount, result.RequiredVotes)}");
                     _changeMapManager.ScheduleMapChange(map);
                     if (_config!.ChangeMapImmediatly)
                         _changeMapManager.ChangeNextMap();

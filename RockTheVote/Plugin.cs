@@ -102,7 +102,7 @@ namespace cs2_rockthevote
             {
                 var split = text.Split("votemap");
                 var map = split.Length > 1 ? split[1].Trim() : "";
-                _nominationManager.CommandHandler(player, map);
+                _votemapManager.CommandHandler(player, map);
             }
             return HookResult.Continue;
         }

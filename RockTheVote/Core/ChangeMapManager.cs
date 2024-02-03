@@ -1,4 +1,5 @@
 ﻿using CounterStrikeSharp.API;
+using CounterStrikeSharp.API.Core.Plugin;
 
 namespace cs2_rockthevote
 {
@@ -6,46 +7,45 @@ namespace cs2_rockthevote
     {
         private Plugin? _plugin;
         private StringLocalizer _localizer;
+        private PluginState _pluginState;
 
         private string? _nextMap { get; set; } = null;
 
-        public bool Scheduled { get; set; }
 
-        public ChangeMapManager(StringLocalizer localizer)
+        public ChangeMapManager(StringLocalizer localizer, PluginState pluginState)
         {
             _localizer = localizer;
+            _pluginState = pluginState;
         }
 
 
         public void ScheduleMapChange(string map)
         {
             _nextMap = map;
-            Scheduled = true;
+            _pluginState.MapChangeScheduled = true;
         }
 
-        void Clear()
+        public void OnMapStart()
         {
             _nextMap = null;
-            Scheduled = false;
         }
 
         public bool ChangeNextMap()
         {
-            if (!Scheduled)
+            if (!_pluginState.MapChangeScheduled)
                 return false;
 
-            var nextMap = _nextMap;
-            Server.PrintToChatAll(_localizer.LocalizeWithPrefix("general.changing-map", nextMap!));
+            _pluginState.MapChangeScheduled = false;
+            Server.PrintToChatAll(_localizer.LocalizeWithPrefix("general.changing-map", _nextMap!));
             _plugin.AddTimer(3.0F, () =>
             {
-                if (Server.IsMapValid(nextMap!))
+                if (Server.IsMapValid(_nextMap!))
                 {
-                    Server.ExecuteCommand($"changelevel {nextMap}");
+                    Server.ExecuteCommand($"changelevel {_nextMap}");
                 }
                 else
-                    Server.ExecuteCommand($"ds_workshop_changelevel {nextMap}");
+                    Server.ExecuteCommand($"ds_workshop_changelevel {_nextMap}");
             });
-            Clear();
             return true;
         }
 

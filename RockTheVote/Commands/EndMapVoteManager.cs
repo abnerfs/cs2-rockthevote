@@ -1,5 +1,6 @@
 ﻿using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
+using CounterStrikeSharp.API.Core.Plugin;
 using CounterStrikeSharp.API.Modules.Menu;
 using CounterStrikeSharp.API.Modules.Timers;
 using System.Data;
@@ -10,18 +11,20 @@ namespace cs2_rockthevote
 {
     public class EndMapVoteManager: IPluginDependency<Plugin, Config>
     {
-        public EndMapVoteManager(MapLister mapLister, ChangeMapManager changeMapManager, NominationCommand nominationManager, StringLocalizer localizer)
+        public EndMapVoteManager(MapLister mapLister, ChangeMapManager changeMapManager, NominationCommand nominationManager, StringLocalizer localizer, PluginState pluginState)
         {
             _mapLister = mapLister;
             _changeMapManager = changeMapManager;
             _nominationManager = nominationManager;
             _localizer = localizer;
+            _pluginState = pluginState;
         }
 
         private readonly MapLister _mapLister;
         private readonly ChangeMapManager _changeMapManager;
         private readonly NominationCommand _nominationManager;
         private readonly StringLocalizer _localizer;
+        private PluginState _pluginState;
         private Timer? Timer;
 
         Dictionary<string, int> Votes = new();
@@ -38,12 +41,12 @@ namespace cs2_rockthevote
             _plugin = plugin;
         }
 
-
         public void OnMapStart(string map)
         {
             Votes.Clear();
             timeLeft = 0;
             mapsEllected.Clear();
+            KillTimer();
         }
 
         public void MapVoted(CCSPlayerController player, string mapName)
@@ -65,7 +68,6 @@ namespace cs2_rockthevote
                 Timer = null;
             }
         }
-
         void PrintCenterTextAll(string text)
         {
             foreach (var player in Utilities.GetPlayers())
@@ -130,6 +132,7 @@ namespace cs2_rockthevote
 
         public void StartVote(EndOfMapConfig config)
         {
+            _pluginState.EofVoteHappening = true;
             _config = config;
             var mapsToShow = _config!.MapsToShow == 0 ? 5 : _config!.MapsToShow;
             var mapsScrambled = Shuffle(new Random(), _mapLister.Maps!.Where(x => x != Server.MapName).ToList());
