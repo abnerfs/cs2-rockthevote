@@ -4,6 +4,7 @@ using CounterStrikeSharp.API.Core.Attributes.Registration;
 using CounterStrikeSharp.API.Core.Plugin;
 using CounterStrikeSharp.API.Modules.Commands;
 using CounterStrikeSharp.API.Modules.Menu;
+using Microsoft.Extensions.Localization;
 
 namespace cs2_rockthevote
 {
@@ -28,12 +29,12 @@ namespace cs2_rockthevote
         private PluginState _pluginState;
         private MapLister _mapLister;
 
-        public VotemapCommand(MapLister mapLister, GameRules gamerules, StringLocalizer localizer, ChangeMapManager changeMapManager, PluginState pluginState)
+        public VotemapCommand(MapLister mapLister, GameRules gamerules, IStringLocalizer stringLocalizer, ChangeMapManager changeMapManager, PluginState pluginState)
         {
             _mapLister = mapLister;
             _mapLister.EventMapsLoaded += OnMapsLoaded;
             _gamerules = gamerules;
-            _localizer = localizer;
+            _localizer = new StringLocalizer(stringLocalizer, "votemap.prefix");
             _changeMapManager = changeMapManager;
             _pluginState = pluginState;
         }
@@ -136,7 +137,7 @@ namespace cs2_rockthevote
                     break;
                 case VoteResultEnum.VotesReached:
                     Server.PrintToChatAll($"{_localizer.LocalizeWithPrefix("votemap.player-voted", player.PlayerName, map)} {_localizer.Localize("general.votes-needed", result.VoteCount, result.RequiredVotes)}");
-                    _changeMapManager.ScheduleMapChange(map);
+                    _changeMapManager.ScheduleMapChange(map, "votemap.prefix");
                     if (_config!.ChangeMapImmediatly)
                         _changeMapManager.ChangeNextMap();
                     else

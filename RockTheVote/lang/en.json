@@ -1,5 +1,6 @@
 {
   "rtv.prefix": "{red}[RockTheVote]{default}",
+  "votemap.prefix": "{red}[Votemap]{default}",
   "votemap.player-voted": "Player {green}{0}{default} voted in {green}{1}{default}",
   "votemap.already-voted": "You already vote in {green}{0}{default}",
   "votemap.in-the-map": "in the map {0}",
