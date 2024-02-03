@@ -105,15 +105,15 @@ namespace cs2_rockthevote
 
         void AddVote(CCSPlayerController player, string map)
         {
-            if (_mapLister.Maps!.FirstOrDefault(x => x.ToLower() == map) is null)
-            {
-                player!.PrintToChat(_localizer.LocalizeWithPrefix("general.invalid-map"));
-                return;
-            }
-
             if (map == Server.MapName)
             {
                 player!.PrintToChat(_localizer.LocalizeWithPrefix("general.validation.current-map"));
+                return;
+            }
+
+            if (_mapLister.Maps!.FirstOrDefault(x => x.ToLower() == map) is null)
+            {
+                player!.PrintToChat(_localizer.LocalizeWithPrefix("general.invalid-map"));
                 return;
             }
 
@@ -129,7 +129,7 @@ namespace cs2_rockthevote
                     Server.PrintToChatAll($"{_localizer.LocalizeWithPrefix("votemap.player-voted", player.PlayerName, map)} {_localizer.Localize("general.votes-needed", result.VoteCount, result.RequiredVotes)}");
                     break;
                 case VoteResultEnum.AlreadyAddedBefore:
-                    player.PrintToChat($"{_localizer.LocalizeWithPrefix("votemap.already-voted")} {_localizer.Localize("general.votes-needed", result.VoteCount, result.RequiredVotes)}");
+                    player.PrintToChat($"{_localizer.LocalizeWithPrefix("votemap.already-voted", map)} {_localizer.Localize("general.votes-needed", result.VoteCount, result.RequiredVotes)}");
                     break;
                 case VoteResultEnum.VotesAlreadyReached:
                     player.PrintToChat(_localizer.LocalizeWithPrefix("votemap.disabled"));
