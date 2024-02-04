@@ -10,7 +10,7 @@ namespace cs2_rockthevote
 
         void SetGameRules() => _gameRules = Utilities.FindAllEntitiesByDesignerName<CCSGameRulesProxy>("cs_gamerules").First().GameRules!;
 
-        public void OnMapStart()
+        public void OnMapStart(string map)
         {
             _gameRules = null;
             new Timer(1.0F, () =>
