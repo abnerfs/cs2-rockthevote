@@ -7,9 +7,13 @@ Players can type rtv to request the map to be changed, once a number of votes is
 ## Votemap
 Players can vote to change to an specific map by using the votemap <mapname> command
 
+## Timeleft
+Players can type `timeleft` to see how much time is left in the current map 
+
 # Features
 - Reads from a custom maplist
 - RTV Command
+- Timeleft command
 - Nominate command
 - Nomination chat menu
 - Votemap command
