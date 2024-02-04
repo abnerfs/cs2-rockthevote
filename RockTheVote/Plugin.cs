@@ -20,7 +20,7 @@ namespace cs2_rockthevote
     public partial class Plugin : BasePlugin, IPluginConfig<Config>
     {
         public override string ModuleName => "RockTheVote";
-        public override string ModuleVersion => "1.0.0";
+        public override string ModuleVersion => "1.0.1";
         public override string ModuleAuthor => "abnerfs";
         public override string ModuleDescription => "You know what it is, rtv";
 
@@ -28,20 +28,20 @@ namespace cs2_rockthevote
         private readonly DependencyManager<Plugin, Config> _dependencyManager;
         private readonly NominationCommand _nominationManager;
         private readonly ChangeMapManager _changeMapManager;
-        private readonly VotemapCommand _votemapManager;        
-        private readonly RockTheVoteCommand _rtvManager;        
+        private readonly VotemapCommand _votemapManager;
+        private readonly RockTheVoteCommand _rtvManager;
 
-        public Plugin(DependencyManager<Plugin, Config> dependencyManager,             
+        public Plugin(DependencyManager<Plugin, Config> dependencyManager,
             NominationCommand nominationManager,
             ChangeMapManager changeMapManager,
-            VotemapCommand voteMapManager,            
+            VotemapCommand voteMapManager,
             RockTheVoteCommand rtvManager)
         {
             _dependencyManager = dependencyManager;
             _nominationManager = nominationManager;
             _changeMapManager = changeMapManager;
             _votemapManager = voteMapManager;
-            _rtvManager = rtvManager;            
+            _rtvManager = rtvManager;
         }
 
         public Config? Config { get; set; }
@@ -110,6 +110,9 @@ namespace cs2_rockthevote
         public void OnConfigParsed(Config config)
         {
             Config = config;
+            if (Config.Version < 5)
+                throw new Exception("Your config file is too old, please delete it from addons/counterstrikesharp/configs/plugins/RockTheVote and let the plugin recreate it on load");
+
             _dependencyManager.OnConfigParsed(config);
         }
     }

@@ -9,7 +9,7 @@ using Timer = CounterStrikeSharp.API.Modules.Timers.Timer;
 
 namespace cs2_rockthevote
 {
-    public class EndMapVoteManager: IPluginDependency<Plugin, Config>
+    public class EndMapVoteManager : IPluginDependency<Plugin, Config>
     {
         public EndMapVoteManager(MapLister mapLister, ChangeMapManager changeMapManager, NominationCommand nominationManager, StringLocalizer localizer, PluginState pluginState)
         {
@@ -62,7 +62,7 @@ namespace cs2_rockthevote
 
         void KillTimer()
         {
-            if(Timer is not null)
+            if (Timer is not null)
             {
                 Timer!.Kill();
                 Timer = null;
@@ -84,8 +84,9 @@ namespace cs2_rockthevote
             int index = 1;
             StringBuilder stringBuilder = new();
             stringBuilder.AppendLine(_localizer.Localize("emv.hud.hud-timer", time));
-            foreach (var kv in Votes.OrderByDescending(x => x.Value).Take(2)) {
-                if(kv.Value > 0)
+            foreach (var kv in Votes.OrderByDescending(x => x.Value).Take(2))
+            {
+                if (kv.Value > 0)
                     stringBuilder.AppendLine($"{index++} {kv.Key} ({kv.Value})");
             }
 
@@ -97,8 +98,8 @@ namespace cs2_rockthevote
             KillTimer();
             var winner = Votes.OrderByDescending(x => x.Value).First();
             var totalVotes = Votes.Select(x => x.Value).Sum();
-            var percent = totalVotes > 0 ?  (winner.Value / totalVotes) * 100 : 0;
-            if(percent > 0)
+            var percent = totalVotes > 0 ? (winner.Value / totalVotes) * 100 : 0;
+            if (percent > 0)
             {
                 Server.PrintToChatAll(_localizer.LocalizeWithPrefix("emv.vote-ended", winner.Key, percent, totalVotes));
             }
@@ -140,7 +141,7 @@ namespace cs2_rockthevote
 
             _canVote = ServerManager.ValidPlayerCount();
             ChatMenu menu = new(_localizer.Localize("emv.hud.menu-title"));
-            foreach(var map in mapsEllected.Take(mapsToShow))
+            foreach (var map in mapsEllected.Take(mapsToShow))
             {
                 Votes[map] = 0;
                 menu.AddMenuOption(map, (player, option) => MapVoted(player, map));

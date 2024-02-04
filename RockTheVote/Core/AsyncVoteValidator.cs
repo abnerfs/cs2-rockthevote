@@ -10,7 +10,7 @@
         public AsyncVoteValidator(IVoteConfig config)
         {
             _config = config;
-            VotePercentage = _config.VotePercentage/ 100F;
+            VotePercentage = _config.VotePercentage / 100F;
         }
 
         public bool CheckVotes(int numberOfVotes)

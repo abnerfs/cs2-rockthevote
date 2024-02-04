@@ -46,7 +46,7 @@ namespace cs2_rockthevote
                 return;
             }
 
-            if(!_config.EnabledInWarmup && _gameRules.WarmupRunning)
+            if (!_config.EnabledInWarmup && _gameRules.WarmupRunning)
             {
                 player.PrintToChat(_localizer.LocalizeWithPrefix("general.validation.warmup"));
                 return;
@@ -58,7 +58,7 @@ namespace cs2_rockthevote
                 return;
             }
 
-            if (_config.MinRounds > _gameRules.TotalRoundsPlayed)
+            if (_config.MinRounds > 0 && _config.MinRounds > _gameRules.TotalRoundsPlayed)
             {
                 player!.PrintToChat(_localizer.LocalizeWithPrefix("general.validation.minimum-rounds", _config.MinRounds));
                 return;
@@ -86,7 +86,7 @@ namespace cs2_rockthevote
 
         public void PlayerDisconnected(CCSPlayerController? player)
         {
-            if(player?.UserId != null)
+            if (player?.UserId != null)
                 _voteManager!.RemoveVote(player.UserId.Value);
         }
 
