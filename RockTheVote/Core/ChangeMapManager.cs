@@ -1,7 +1,26 @@
 ﻿using CounterStrikeSharp.API;
+using CounterStrikeSharp.API.Core.Attributes.Registration;
+using CounterStrikeSharp.API.Core;
 
 namespace cs2_rockthevote
 {
+    public partial class Plugin
+    {
+        [GameEventHandler(HookMode.Post)]
+        public HookResult OnRoundEndMapChanger(EventRoundEnd @event, GameEventInfo info)
+        {
+            _changeMapManager.ChangeNextMap();
+            return HookResult.Continue;
+        }
+
+        [GameEventHandler(HookMode.Post)]
+        public HookResult OnRoundStartMapChanger(EventRoundStart @event, GameEventInfo info)
+        {
+            _changeMapManager.ChangeNextMap();
+            return HookResult.Continue;
+        }
+    }
+
     public class ChangeMapManager : IPluginDependency<Plugin, Config>
     {
         private Plugin? _plugin;

@@ -20,7 +20,7 @@ namespace cs2_rockthevote
     public partial class Plugin : BasePlugin, IPluginConfig<Config>
     {
         public override string ModuleName => "RockTheVote";
-        public override string ModuleVersion => "1.0.1";
+        public override string ModuleVersion => "1.0.2";
         public override string ModuleAuthor => "abnerfs";
         public override string ModuleDescription => "You know what it is, rtv";
 
@@ -30,18 +30,21 @@ namespace cs2_rockthevote
         private readonly ChangeMapManager _changeMapManager;
         private readonly VotemapCommand _votemapManager;
         private readonly RockTheVoteCommand _rtvManager;
+        private readonly GameRules _gameRules;
 
         public Plugin(DependencyManager<Plugin, Config> dependencyManager,
             NominationCommand nominationManager,
             ChangeMapManager changeMapManager,
             VotemapCommand voteMapManager,
-            RockTheVoteCommand rtvManager)
+            RockTheVoteCommand rtvManager,
+            GameRules gameRules)
         {
             _dependencyManager = dependencyManager;
             _nominationManager = nominationManager;
             _changeMapManager = changeMapManager;
             _votemapManager = voteMapManager;
             _rtvManager = rtvManager;
+            _gameRules = gameRules;
         }
 
         public Config? Config { get; set; }
@@ -54,32 +57,6 @@ namespace cs2_rockthevote
         {
             _dependencyManager.OnPluginLoad(this);
             RegisterListener<OnMapStart>(_dependencyManager.OnMapStart);
-        }
-
-
-        [GameEventHandler(HookMode.Pre)]
-        public HookResult EventPlayerDisconnect(EventPlayerDisconnect @event, GameEventInfo @eventInfo)
-        {
-            var player = @event.Userid;
-            _rtvManager.PlayerDisconnected(player);
-            _nominationManager.PlayerDisconnected(player);
-            _votemapManager.PlayerDisconnected(player);
-            return HookResult.Continue;
-        }
-
-
-        [GameEventHandler(HookMode.Post)]
-        public HookResult OnRoundEnd(EventRoundEnd @event, GameEventInfo info)
-        {
-            _changeMapManager.ChangeNextMap();
-            return HookResult.Continue;
-        }
-
-        [GameEventHandler(HookMode.Post)]
-        public HookResult OnRoundStart(EventRoundStart @event, GameEventInfo info)
-        {
-            _changeMapManager.ChangeNextMap();
-            return HookResult.Continue;
         }
 
         [GameEventHandler(HookMode.Post)]

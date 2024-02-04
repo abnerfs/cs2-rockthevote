@@ -2,7 +2,6 @@
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Core.Attributes.Registration;
-using CounterStrikeSharp.API.Core.Plugin;
 using CounterStrikeSharp.API.Modules.Commands;
 using CounterStrikeSharp.API.Modules.Menu;
 
@@ -15,6 +14,14 @@ namespace cs2_rockthevote
         {
             string map = command.GetArg(1).Trim().ToLower();
             _nominationManager.CommandHandler(player!, map);
+        }
+
+        [GameEventHandler(HookMode.Pre)]
+        public HookResult EventPlayerDisconnectNominate(EventPlayerDisconnect @event, GameEventInfo @eventInfo)
+        {
+            var player = @event.Userid;
+            _nominationManager.PlayerDisconnected(player);
+            return HookResult.Continue;
         }
     }
 

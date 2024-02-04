@@ -13,6 +13,14 @@ namespace cs2_rockthevote
         {
             _rtvManager.CommandHandler(player!);
         }
+
+        [GameEventHandler(HookMode.Pre)]
+        public HookResult EventPlayerDisconnectRTV(EventPlayerDisconnect @event, GameEventInfo @eventInfo)
+        {
+            var player = @event.Userid;
+            _rtvManager.PlayerDisconnected(player);
+            return HookResult.Continue;
+        }
     }
 
     public class RockTheVoteCommand : IPluginDependency<Plugin, Config>

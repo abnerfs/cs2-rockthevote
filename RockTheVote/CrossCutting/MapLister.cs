@@ -1,6 +1,4 @@
-﻿
-
-namespace cs2_rockthevote
+﻿namespace cs2_rockthevote
 {
     public class MapLister : IPluginDependency<Plugin, Config>
     {
@@ -8,6 +6,8 @@ namespace cs2_rockthevote
         public bool MapsLoaded { get; private set; } = false;
 
         public event EventHandler<string[]>? EventMapsLoaded;
+
+        private Plugin? _plugin;
 
         public MapLister()
         {
@@ -20,10 +20,10 @@ namespace cs2_rockthevote
             Maps = null;
         }
 
-        public void OnLoad(Plugin plugin)
+        void LoadMaps()
         {
             Clear();
-            string mapsFile = Path.Combine(plugin.ModulePath, "../maplist.txt");
+            string mapsFile = Path.Combine(_plugin!.ModulePath, "../maplist.txt");
             if (!File.Exists(mapsFile))
                 throw new FileNotFoundException(mapsFile);
 
@@ -37,6 +37,19 @@ namespace cs2_rockthevote
             MapsLoaded = true;
             if (EventMapsLoaded is not null)
                 EventMapsLoaded.Invoke(this, Maps!);
+        }
+
+        public void OnMapStart(string _map)
+        {
+            if (_plugin is not null)
+                LoadMaps();
+        }
+
+
+        public void OnLoad(Plugin plugin)
+        {
+            _plugin = plugin;
+            LoadMaps();
         }
     }
 }
