@@ -13,6 +13,13 @@ namespace cs2_rockthevote
             _gameRules.SetGameRules();
             return HookResult.Continue;
         }
+
+        [GameEventHandler(HookMode.Post)]
+        public HookResult OnAnnounceWarmupGameRules(EventRoundAnnounceWarmup @event, GameEventInfo info)
+        {
+            _gameRules.SetGameRules();
+            return HookResult.Continue;
+        }
     }
 
     public class GameRules : IPluginDependency<Plugin, Config>
@@ -28,7 +35,11 @@ namespace cs2_rockthevote
             {
                 SetGameRules();
             });
+
+
         }
+
+        public float GameStartTime => _gameRules!.GameStartTime;
 
         public void OnMapStart(string map)
         {

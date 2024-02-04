@@ -20,7 +20,7 @@ namespace cs2_rockthevote
     public partial class Plugin : BasePlugin, IPluginConfig<Config>
     {
         public override string ModuleName => "RockTheVote";
-        public override string ModuleVersion => "1.0.2";
+        public override string ModuleVersion => "1.1.0";
         public override string ModuleAuthor => "abnerfs";
         public override string ModuleDescription => "You know what it is, rtv";
 
@@ -31,13 +31,15 @@ namespace cs2_rockthevote
         private readonly VotemapCommand _votemapManager;
         private readonly RockTheVoteCommand _rtvManager;
         private readonly GameRules _gameRules;
+        private readonly TimeLeftCommand _timeLeft;
 
         public Plugin(DependencyManager<Plugin, Config> dependencyManager,
             NominationCommand nominationManager,
             ChangeMapManager changeMapManager,
             VotemapCommand voteMapManager,
             RockTheVoteCommand rtvManager,
-            GameRules gameRules)
+            GameRules gameRules,
+            TimeLeftCommand timeLeft)
         {
             _dependencyManager = dependencyManager;
             _nominationManager = nominationManager;
@@ -45,6 +47,7 @@ namespace cs2_rockthevote
             _votemapManager = voteMapManager;
             _rtvManager = rtvManager;
             _gameRules = gameRules;
+            _timeLeft = timeLeft;
         }
 
         public Config? Config { get; set; }
@@ -80,6 +83,10 @@ namespace cs2_rockthevote
                 var split = text.Split("votemap");
                 var map = split.Length > 1 ? split[1].Trim() : "";
                 _votemapManager.CommandHandler(player, map);
+            }
+            else if (text.StartsWith("timeleft"))
+            {
+                _timeLeft.CommandHandler(player);
             }
             return HookResult.Continue;
         }
