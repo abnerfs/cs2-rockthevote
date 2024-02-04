@@ -38,19 +38,19 @@
                 result = VoteResultEnum.Added;
             }
 
-            if(_voteValidator.CheckVotes(votes.Count))
+            if (_voteValidator.CheckVotes(votes.Count))
             {
                 VotesAlreadyReached = true;
                 return new VoteResult(VoteResultEnum.VotesReached, VoteCount, RequiredVotes);
             }
 
-            return new VoteResult(result.Value, VoteCount, RequiredVotes);   
+            return new VoteResult(result.Value, VoteCount, RequiredVotes);
         }
 
         public void RemoveVote(int userId)
         {
             var index = votes.IndexOf(userId);
-            if(index > -1)
+            if (index > -1)
                 votes.RemoveAt(index);
         }
     }

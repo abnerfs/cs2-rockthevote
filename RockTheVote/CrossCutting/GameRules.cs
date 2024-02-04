@@ -4,7 +4,7 @@ using Timer = CounterStrikeSharp.API.Modules.Timers.Timer;
 
 namespace cs2_rockthevote
 {
-    public class GameRules: IPluginDependency<Plugin, Config>
+    public class GameRules : IPluginDependency<Plugin, Config>
     {
         CCSGameRules? _gameRules = null;
 

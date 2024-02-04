@@ -2,9 +2,9 @@
 
 namespace cs2_rockthevote
 {
-    public class MapLister: IPluginDependency<Plugin, Config>
+    public class MapLister : IPluginDependency<Plugin, Config>
     {
-        public string[]? Maps { get; private set;} = null;
+        public string[]? Maps { get; private set; } = null;
         public bool MapsLoaded { get; private set; } = false;
 
         public event EventHandler<string[]>? EventMapsLoaded;
@@ -34,8 +34,8 @@ namespace cs2_rockthevote
                 .Where(x => !string.IsNullOrWhiteSpace(x) && !x.StartsWith("//"))
                 .ToArray();
 
-            MapsLoaded = true; 
-            if(EventMapsLoaded is not null)
+            MapsLoaded = true;
+            if (EventMapsLoaded is not null)
                 EventMapsLoaded.Invoke(this, Maps!);
         }
     }

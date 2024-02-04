@@ -13,12 +13,12 @@ namespace cs2_rockthevote
 
         public void LoadDependencies(Assembly assembly)
         {
-            
+
             var typesToAdd = assembly.GetTypes()
                 .Where(x => x.IsClass)
                 .Where(dependencyType.IsAssignableFrom);
 
-            TypesToAdd.AddRange(typesToAdd);            
+            TypesToAdd.AddRange(typesToAdd);
         }
 
         public void AddIt(IServiceCollection collection)
@@ -32,7 +32,7 @@ namespace cs2_rockthevote
             {
                 Dependencies = TypesToAdd
                     .Where(x => dependencyType.IsAssignableFrom(x))
-                    .Select(type => (IPluginDependency<TPlugin, TConfig>) p.GetService(type)!)
+                    .Select(type => (IPluginDependency<TPlugin, TConfig>)p.GetService(type)!)
                     .ToList();
 
                 return this;
@@ -41,7 +41,7 @@ namespace cs2_rockthevote
 
         public void OnMapStart(string mapName)
         {
-            foreach(var service in Dependencies)
+            foreach (var service in Dependencies)
             {
                 service.OnMapStart(mapName);
             }

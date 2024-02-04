@@ -7,7 +7,7 @@
 
         public PluginState()
         {
-            
+
         }
 
         public bool DisableCommands => MapChangeScheduled || EofVoteHappening;

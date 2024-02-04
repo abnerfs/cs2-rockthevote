@@ -2,7 +2,7 @@
 
 namespace cs2_rockthevote
 {
-    public class ChangeMapManager: IPluginDependency<Plugin, Config>
+    public class ChangeMapManager : IPluginDependency<Plugin, Config>
     {
         private Plugin? _plugin;
         private StringLocalizer _localizer;

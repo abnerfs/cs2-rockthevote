@@ -18,7 +18,7 @@ namespace cs2_rockthevote
         }
     }
 
-    public class VotemapCommand: IPluginDependency<Plugin, Config>
+    public class VotemapCommand : IPluginDependency<Plugin, Config>
     {
         Dictionary<string, AsyncVoteManager> VotedMaps = new();
         ChatMenu? votemapMenu = null;
@@ -53,7 +53,7 @@ namespace cs2_rockthevote
         public void OnMapsLoaded(object? sender, string[] maps)
         {
             votemapMenu = new("Votemap");
-            foreach (var map in _mapLister.Maps!.Where(x=> x != Server.MapName))
+            foreach (var map in _mapLister.Maps!.Where(x => x != Server.MapName))
             {
                 votemapMenu.AddMenuOption(map, (CCSPlayerController player, ChatMenuOption option) =>
                 {
@@ -149,7 +149,7 @@ namespace cs2_rockthevote
         public void PlayerDisconnected(CCSPlayerController player)
         {
             int userId = player.UserId!.Value;
-            foreach(var map in VotedMaps.Select(x => x.Key))
+            foreach (var map in VotedMaps.Select(x => x.Key))
                 map.Remove(userId);
         }
     }
