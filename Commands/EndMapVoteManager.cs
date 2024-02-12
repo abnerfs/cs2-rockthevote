@@ -1,5 +1,7 @@
 ﻿using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
+using CounterStrikeSharp.API.Core.Attributes.Registration;
+using CounterStrikeSharp.API.Modules.Commands;
 using CounterStrikeSharp.API.Modules.Menu;
 using CounterStrikeSharp.API.Modules.Timers;
 using System.Data;
@@ -15,12 +17,11 @@ namespace cs2_rockthevote
     //    public void VoteBot(CCSPlayerController? player, CommandInfo? command)
     //    {
     //        var bot = ServerManager.ValidPlayers().FirstOrDefault(x => x.IsBot);
-    //        if(bot is not null)
+    //        if (bot is not null)
     //        {
     //            _endmapVoteManager.MapVoted(bot, "de_dust2");
     //        }
     //    }
-
     //}
 
     public class EndMapVoteManager : IPluginDependency<Plugin, Config>
@@ -42,7 +43,7 @@ namespace cs2_rockthevote
         private Timer? Timer;
 
         Dictionary<string, int> Votes = new();
-        int timeLeft = 0;
+        int timeLeft = -1;
 
         List<string> mapsEllected = new();
 
@@ -67,7 +68,6 @@ namespace cs2_rockthevote
         {
             Votes[mapName] += 1;
             player.PrintToChat(_localizer.LocalizeWithPrefix("emv.you-voted", mapName));
-            VoteDisplayTick(timeLeft);
             if (Votes.Select(x => x.Value).Sum() >= _canVote)
             {
                 EndVote();
@@ -76,12 +76,14 @@ namespace cs2_rockthevote
 
         void KillTimer()
         {
+            timeLeft = -1;
             if (Timer is not null)
             {
                 Timer!.Kill();
                 Timer = null;
             }
         }
+
         void PrintCenterTextAll(string text)
         {
             foreach (var player in Utilities.GetPlayers())
@@ -93,18 +95,22 @@ namespace cs2_rockthevote
             }
         }
 
-        void VoteDisplayTick(int time)
+        public void VoteDisplayTick()
         {
+            if (timeLeft < 0)
+                return;
+
             int index = 1;
             StringBuilder stringBuilder = new();
-            stringBuilder.AppendLine(_localizer.Localize("emv.hud.hud-timer", time));
-            foreach (var kv in Votes.OrderByDescending(x => x.Value).Take(2))
+            stringBuilder.AppendFormat($"<b>{_localizer.Localize("emv.hud.hud-timer", timeLeft)}</b>");
+            foreach (var kv in Votes.OrderByDescending(x => x.Value).Take(5))
             {
-                if (kv.Value > 0)
-                    stringBuilder.AppendLine($"{index++} {kv.Key} ({kv.Value})");
+                stringBuilder.AppendFormat($"<br>{index++} {kv.Key} <font color='green'>({kv.Value})</font>");
             }
-
-            PrintCenterTextAll(stringBuilder.ToString());
+            foreach (CCSPlayerController player in ServerManager.ValidPlayers())
+            {
+                player.PrintToCenterHtml(stringBuilder.ToString());
+            }
         }
 
         void EndVote()
@@ -117,7 +123,6 @@ namespace cs2_rockthevote
 
             decimal totalVotes = Votes.Select(x => x.Value).Sum();
             decimal percent = totalVotes > 0 ? (winner.Value / totalVotes) * 100M : 0;
-            //Server.PrintToChatAll($"Total {totalVotes}, winner {winner.Value}, Percent {percent}");
             if (maxVotes > 0)
             {
                 Server.PrintToChatAll(_localizer.LocalizeWithPrefix("emv.vote-ended", winner.Key, percent, totalVotes));
@@ -174,10 +179,9 @@ namespace cs2_rockthevote
                 if (timeLeft <= 0)
                 {
                     EndVote();
-
                 }
                 else
-                    VoteDisplayTick(timeLeft--);
+                    timeLeft--;
             }, TimerFlags.REPEAT);
         }
     }
