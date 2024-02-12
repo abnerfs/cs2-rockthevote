@@ -26,7 +26,7 @@ namespace cs2_rockthevote
     {
         CCSGameRules? _gameRules = null;
 
-        public void SetGameRules() => _gameRules = Utilities.FindAllEntitiesByDesignerName<CCSGameRulesProxy>("cs_gamerules").First().GameRules!;
+        public void SetGameRules() => _gameRules = Utilities.FindAllEntitiesByDesignerName<CCSGameRulesProxy>("cs_gamerules").FirstOrDefault()?.GameRules;
 
         public void SetGameRulesAsync()
         {
