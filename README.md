@@ -65,15 +65,3 @@ Players can type `timeleft` to see how much time is left in the current map
 ```
 
 Maps that will be used in RTV/nominate/votemap are located in addons/counterstrikesharp/configs/plugins/RockTheVote/maplist.txt
-
-# TODO
-- [X] ~~Add minimum rounds to use commands.~~
-- [X] Add votemap.
-- [x] ~~Translations support~~
-- [ ] Add dont change option
-- [ ] Add vote extend command
-- [x] ~~Nomination menu~~
-- [ ] Add end of map vote
-- [ ] Add timeleft command
-- [ ] Add currentmap command
-- [ ] Add nextmap command
