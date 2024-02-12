@@ -1,6 +1,5 @@
 ﻿using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
-using CounterStrikeSharp.API.Core.Plugin;
 using CounterStrikeSharp.API.Modules.Menu;
 using CounterStrikeSharp.API.Modules.Timers;
 using System.Data;
@@ -9,6 +8,21 @@ using Timer = CounterStrikeSharp.API.Modules.Timers.Timer;
 
 namespace cs2_rockthevote
 {
+    //public partial class Plugin
+    //{
+
+    //    [ConsoleCommand("votebot", "Votes to rock the vote")]
+    //    public void VoteBot(CCSPlayerController? player, CommandInfo? command)
+    //    {
+    //        var bot = ServerManager.ValidPlayers().FirstOrDefault(x => x.IsBot);
+    //        if(bot is not null)
+    //        {
+    //            _endmapVoteManager.MapVoted(bot, "de_dust2");
+    //        }
+    //    }
+
+    //}
+
     public class EndMapVoteManager : IPluginDependency<Plugin, Config>
     {
         public EndMapVoteManager(MapLister mapLister, ChangeMapManager changeMapManager, NominationCommand nominationManager, StringLocalizer localizer, PluginState pluginState)
@@ -96,17 +110,20 @@ namespace cs2_rockthevote
         void EndVote()
         {
             KillTimer();
-            var winner = Votes.OrderByDescending(x => x.Value).First();
-            var totalVotes = Votes.Select(x => x.Value).Sum();
-            var percent = totalVotes > 0 ? (winner.Value / totalVotes) * 100 : 0;
-            if (percent > 0)
+            decimal maxVotes = Votes.Select(x => x.Value).Max();
+            IEnumerable<KeyValuePair<string, int>> potentialWinners = Votes.Where(x => x.Value == maxVotes);
+            Random rnd = new();
+            KeyValuePair<string, int> winner = potentialWinners.ElementAt(rnd.Next(0, potentialWinners.Count()));
+
+            decimal totalVotes = Votes.Select(x => x.Value).Sum();
+            decimal percent = totalVotes > 0 ? (winner.Value / totalVotes) * 100M : 0;
+            //Server.PrintToChatAll($"Total {totalVotes}, winner {winner.Value}, Percent {percent}");
+            if (maxVotes > 0)
             {
                 Server.PrintToChatAll(_localizer.LocalizeWithPrefix("emv.vote-ended", winner.Key, percent, totalVotes));
             }
             else
             {
-                var rnd = new Random();
-                winner = Votes.ElementAt(rnd.Next(0, Votes.Count));
                 Server.PrintToChatAll(_localizer.LocalizeWithPrefix("emv.vote-ended-no-votes", winner.Key));
             }
 
@@ -133,6 +150,7 @@ namespace cs2_rockthevote
 
         public void StartVote(EndOfMapConfig config)
         {
+            Votes.Clear();
             _pluginState.EofVoteHappening = true;
             _config = config;
             var mapsToShow = _config!.MapsToShow == 0 ? 5 : _config!.MapsToShow;
@@ -147,13 +165,9 @@ namespace cs2_rockthevote
                 menu.AddMenuOption(map, (player, option) => MapVoted(player, map));
             }
 
-            foreach (var player in Utilities.GetPlayers())
-            {
-                if (player.IsValid)
-                {
-                    ChatMenus.OpenMenu(player, menu);
-                }
-            }
+            foreach (var player in ServerManager.ValidPlayers())
+                MenuManager.OpenChatMenu(player, menu);
+
             timeLeft = _config.VoteDuration;
             Timer = _plugin!.AddTimer(1.0F, () =>
             {

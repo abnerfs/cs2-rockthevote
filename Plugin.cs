@@ -20,7 +20,7 @@ namespace cs2_rockthevote
     public partial class Plugin : BasePlugin, IPluginConfig<Config>
     {
         public override string ModuleName => "RockTheVote";
-        public override string ModuleVersion => "1.1.3";
+        public override string ModuleVersion => "1.1.4";
         public override string ModuleAuthor => "abnerfs";
         public override string ModuleDescription => "General purpose map voting plugin";
 
@@ -32,6 +32,7 @@ namespace cs2_rockthevote
         private readonly RockTheVoteCommand _rtvManager;
         private readonly GameRules _gameRules;
         private readonly TimeLeftCommand _timeLeft;
+        private readonly EndMapVoteManager _endmapVoteManager;
 
         public Plugin(DependencyManager<Plugin, Config> dependencyManager,
             NominationCommand nominationManager,
@@ -39,7 +40,8 @@ namespace cs2_rockthevote
             VotemapCommand voteMapManager,
             RockTheVoteCommand rtvManager,
             GameRules gameRules,
-            TimeLeftCommand timeLeft)
+            TimeLeftCommand timeLeft,
+            EndMapVoteManager endmapVoteManager)
         {
             _dependencyManager = dependencyManager;
             _nominationManager = nominationManager;
@@ -48,6 +50,7 @@ namespace cs2_rockthevote
             _rtvManager = rtvManager;
             _gameRules = gameRules;
             _timeLeft = timeLeft;
+            _endmapVoteManager = endmapVoteManager;
         }
 
         public Config? Config { get; set; }
