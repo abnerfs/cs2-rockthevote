@@ -1,5 +1,4 @@
 ﻿using CounterStrikeSharp.API.Core;
-using cs2_rockthevote.Features;
 
 namespace cs2_rockthevote
 {

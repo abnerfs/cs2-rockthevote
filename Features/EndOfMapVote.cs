@@ -1,15 +1,12 @@
-﻿using CounterStrikeSharp.API.Core;
-using CounterStrikeSharp.API.Core.Plugin;
+﻿using CounterStrikeSharp.API;
+using CounterStrikeSharp.API.Core;
+using CounterStrikeSharp.API.Modules.Timers;
 using cs2_rockthevote.Core;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Timer = CounterStrikeSharp.API.Modules.Timers.Timer;
 
-namespace cs2_rockthevote.Features
+namespace cs2_rockthevote
 {
-    public  class EndOfMapVote : IPluginDependency<Plugin, Config>
+    public class EndOfMapVote : IPluginDependency<Plugin, Config>
     {
         private TimeLimitManager _timeLimit;
         private MaxRoundsManager _maxRounds;
@@ -27,26 +24,42 @@ namespace cs2_rockthevote.Features
             _voteManager = voteManager;
         }
 
-        //bool CheckMaxRounds()
-        //{
-        //    int higherScore = _gameRules
+        bool CheckMaxRounds()
+        {
+            Server.PrintToChatAll($"Remaining rounds {_maxRounds.RemainingRounds}, Remaining wins {_maxRounds.RemainingWins}");
+            return !_maxRounds.UnlimitedRounds && (_maxRounds.RemainingRounds <= 2 || _maxRounds.RemainingWins <= 2);
+        }
 
-        //    return !_maxRounds.UnlimitedRounds && (_maxRounds.RemainingRounds <= 2 || _maxRounds.MaxScore)
-        //}
 
         bool CheckTimeLeft()
         {
             return !_timeLimit.UnlimitedTime && _timeLimit.TimeRemaining <= 60M;
         }
 
-        void TriggerMapVote()
+        public void StartVote()
         {
             _voteManager.StartVote(_config);
         }
 
-        public void OnMapStart(string map)
+        public void OnLoad(Plugin plugin)
         {
+            plugin.RegisterEventHandler<EventRoundStart>((ev, info) =>
+            {
+                if (!_pluginState.DisableCommands && !_gameRules.WarmupRunning && CheckMaxRounds())
+                {
+                    StartVote();
+                }
+                return HookResult.Continue;
+            });
 
+            plugin.AddTimer(1.0F, () =>
+            {
+                if(_gameRules is not null && !_gameRules.WarmupRunning && !_pluginState.DisableCommands && _timeLimit.TimeRemaining > 0)
+                {
+                    if (CheckTimeLeft())
+                        StartVote();
+                }
+            }, TimerFlags.REPEAT);
         }
 
         public void OnConfigParsed(Config config)

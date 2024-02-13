@@ -1,6 +1,7 @@
 ﻿using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Core.Attributes.Registration;
+using CounterStrikeSharp.API.Core.Plugin;
 using Microsoft.Extensions.DependencyInjection;
 using static CounterStrikeSharp.API.Core.Listeners;
 
@@ -30,27 +31,22 @@ namespace cs2_rockthevote
         private readonly ChangeMapManager _changeMapManager;
         private readonly VotemapCommand _votemapManager;
         private readonly RockTheVoteCommand _rtvManager;
-        private readonly GameRules _gameRules;
         private readonly TimeLeftCommand _timeLeft;
-        private readonly EndMapVoteManager _endmapVoteManager;
+
 
         public Plugin(DependencyManager<Plugin, Config> dependencyManager,
             NominationCommand nominationManager,
             ChangeMapManager changeMapManager,
             VotemapCommand voteMapManager,
             RockTheVoteCommand rtvManager,
-            GameRules gameRules,
-            TimeLeftCommand timeLeft,
-            EndMapVoteManager endmapVoteManager)
+            TimeLeftCommand timeLeft)
         {
             _dependencyManager = dependencyManager;
             _nominationManager = nominationManager;
             _changeMapManager = changeMapManager;
             _votemapManager = voteMapManager;
             _rtvManager = rtvManager;
-            _gameRules = gameRules;
             _timeLeft = timeLeft;
-            _endmapVoteManager = endmapVoteManager;
         }
 
         public Config? Config { get; set; }
@@ -63,7 +59,6 @@ namespace cs2_rockthevote
         {
             _dependencyManager.OnPluginLoad(this);
             RegisterListener<OnMapStart>(_dependencyManager.OnMapStart);
-            RegisterListener<OnTick>(_endmapVoteManager.VoteDisplayTick);
         }
 
         [GameEventHandler(HookMode.Post)]

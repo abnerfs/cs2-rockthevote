@@ -6,6 +6,7 @@ using CounterStrikeSharp.API.Modules.Menu;
 using CounterStrikeSharp.API.Modules.Timers;
 using System.Data;
 using System.Text;
+using static CounterStrikeSharp.API.Core.Listeners;
 using Timer = CounterStrikeSharp.API.Modules.Timers.Timer;
 
 namespace cs2_rockthevote
@@ -54,6 +55,7 @@ namespace cs2_rockthevote
         public void OnLoad(Plugin plugin)
         {
             _plugin = plugin;
+            plugin.RegisterListener<OnTick>(VoteDisplayTick);
         }
 
         public void OnMapStart(string map)
@@ -133,7 +135,7 @@ namespace cs2_rockthevote
             }
 
             PrintCenterTextAll(_localizer.Localize("emv.hud.finished", winner.Key));
-            _changeMapManager.ScheduleMapChange(winner.Key);
+            _changeMapManager.ScheduleMapChange(winner.Key, mapEnd: _config is EndOfMapConfig);
             if (_config!.ChangeMapImmediatly)
                 _changeMapManager.ChangeNextMap();
             else

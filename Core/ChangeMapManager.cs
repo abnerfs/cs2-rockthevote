@@ -1,6 +1,7 @@
 ﻿using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core.Attributes.Registration;
 using CounterStrikeSharp.API.Core;
+using System.Numerics;
 
 namespace cs2_rockthevote
 {
@@ -27,9 +28,10 @@ namespace cs2_rockthevote
         private StringLocalizer _localizer;
         private PluginState _pluginState;
 
-        private string? _nextMap { get; set; } = null;
+        private string? _nextMap = null;
         private string _prefix = DEFAULT_PREFIX;
         private const string DEFAULT_PREFIX = "rtv.prefix";
+        private bool _mapEnd = false;
 
 
         public ChangeMapManager(StringLocalizer localizer, PluginState pluginState)
@@ -39,11 +41,12 @@ namespace cs2_rockthevote
         }
 
 
-        public void ScheduleMapChange(string map, string prefix = DEFAULT_PREFIX)
+        public void ScheduleMapChange(string map, bool mapEnd = false, string prefix = DEFAULT_PREFIX)
         {
             _nextMap = map;
             _prefix = prefix;
             _pluginState.MapChangeScheduled = true;
+            _mapEnd = mapEnd;
         }
 
         public void OnMapStart()
@@ -52,8 +55,11 @@ namespace cs2_rockthevote
             _prefix = DEFAULT_PREFIX;
         }
 
-        public bool ChangeNextMap()
+        public bool ChangeNextMap(bool mapEnd = false)
         {
+            if (mapEnd != _mapEnd)
+                return false;
+
             if (!_pluginState.MapChangeScheduled)
                 return false;
 
@@ -74,6 +80,14 @@ namespace cs2_rockthevote
         public void OnLoad(Plugin plugin)
         {
             _plugin = plugin;
+            plugin.RegisterEventHandler<EventCsWinPanelMatch>((ev, info) =>
+            {
+                if (_pluginState.MapChangeScheduled)
+                {
+                    ChangeNextMap(true);
+                }
+                return HookResult.Continue;
+            });
         }
     }
 }
