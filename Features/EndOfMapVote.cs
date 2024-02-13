@@ -14,6 +14,7 @@ namespace cs2_rockthevote
         private GameRules _gameRules;
         private EndMapVoteManager _voteManager;
         private EndOfMapConfig _config = new();
+        private Timer? _timer;
 
         public EndOfMapVote(TimeLimitManager timeLimit, MaxRoundsManager maxRounds, PluginState pluginState, GameRules gameRules, EndMapVoteManager voteManager)
         {
@@ -26,7 +27,7 @@ namespace cs2_rockthevote
 
         bool CheckMaxRounds()
         {
-            Server.PrintToChatAll($"Remaining rounds {_maxRounds.RemainingRounds}, Remaining wins {_maxRounds.RemainingWins}");
+            //Server.PrintToChatAll($"Remaining rounds {_maxRounds.RemainingRounds}, Remaining wins {_maxRounds.RemainingWins}");
             return !_maxRounds.UnlimitedRounds && (_maxRounds.RemainingRounds <= 2 || _maxRounds.RemainingWins <= 2);
         }
 
@@ -41,6 +42,12 @@ namespace cs2_rockthevote
             _voteManager.StartVote(_config);
         }
 
+        public void OnMapStart(string map)
+        {
+            _timer?.Kill();
+            _timer = null;
+        }
+
         public void OnLoad(Plugin plugin)
         {
             plugin.RegisterEventHandler<EventRoundStart>((ev, info) =>
@@ -52,14 +59,22 @@ namespace cs2_rockthevote
                 return HookResult.Continue;
             });
 
-            plugin.AddTimer(1.0F, () =>
+            plugin.RegisterEventHandler<EventRoundAnnounceMatchStart>((ev, info) =>
             {
-                if(_gameRules is not null && !_gameRules.WarmupRunning && !_pluginState.DisableCommands && _timeLimit.TimeRemaining > 0)
+                _timer = plugin.AddTimer(1.0F, () =>
                 {
-                    if (CheckTimeLeft())
-                        StartVote();
-                }
-            }, TimerFlags.REPEAT);
+                    if (_gameRules is not null && !_gameRules.WarmupRunning && !_pluginState.DisableCommands && _timeLimit.TimeRemaining > 0)
+                    {
+                        if (CheckTimeLeft())
+                        {
+                            StartVote();
+                            _timer?.Kill();
+                            _timer = null;
+                        }
+                    }
+                }, TimerFlags.REPEAT);
+                return HookResult.Continue;
+            });
         }
 
         public void OnConfigParsed(Config config)
