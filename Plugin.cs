@@ -1,7 +1,6 @@
 ﻿using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Core.Attributes.Registration;
-using CounterStrikeSharp.API.Core.Plugin;
 using Microsoft.Extensions.DependencyInjection;
 using static CounterStrikeSharp.API.Core.Listeners;
 
@@ -21,7 +20,7 @@ namespace cs2_rockthevote
     public partial class Plugin : BasePlugin, IPluginConfig<Config>
     {
         public override string ModuleName => "RockTheVote";
-        public override string ModuleVersion => "1.3.0";
+        public override string ModuleVersion => "1.4.0";
         public override string ModuleAuthor => "abnerfs";
         public override string ModuleDescription => "General purpose map voting plugin";
 
@@ -67,7 +66,7 @@ namespace cs2_rockthevote
             var player = Utilities.GetPlayerFromUserid(@event.Userid);
 
             var text = @event.Text.Trim().ToLower();
-            if (@event.Text.Trim() == "rtv")
+            if (text == "rtv")
             {
                 _rtvManager.CommandHandler(player);
             }
@@ -93,7 +92,7 @@ namespace cs2_rockthevote
         public void OnConfigParsed(Config config)
         {
             Config = config;
-            if (Config.Version < 6)
+            if (Config.Version < 7)
                 throw new Exception("Your config file is too old, please delete it from addons/counterstrikesharp/configs/plugins/RockTheVote and let the plugin recreate it on load");
 
             _dependencyManager.OnConfigParsed(config);

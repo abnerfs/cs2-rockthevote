@@ -1,7 +1,6 @@
 ﻿using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core.Attributes.Registration;
 using CounterStrikeSharp.API.Core;
-using System.Numerics;
 
 namespace cs2_rockthevote
 {
@@ -84,7 +83,10 @@ namespace cs2_rockthevote
             {
                 if (_pluginState.MapChangeScheduled)
                 {
-                    ChangeNextMap(true);
+                    _plugin.AddTimer(3.0F, () =>
+                    {
+                        ChangeNextMap(true);
+                    });
                 }
                 return HookResult.Continue;
             });

@@ -27,6 +27,7 @@ namespace cs2_rockthevote
 
     public class EndMapVoteManager : IPluginDependency<Plugin, Config>
     {
+        const int MAX_OPTIONS_HUD_MENU = 6;
         public EndMapVoteManager(MapLister mapLister, ChangeMapManager changeMapManager, NominationCommand nominationManager, StringLocalizer localizer, PluginState pluginState)
         {
             _mapLister = mapLister;
@@ -105,10 +106,17 @@ namespace cs2_rockthevote
             int index = 1;
             StringBuilder stringBuilder = new();
             stringBuilder.AppendFormat($"<b>{_localizer.Localize("emv.hud.hud-timer", timeLeft)}</b>");
-            foreach (var kv in Votes.OrderByDescending(x => x.Value).Take(5))
-            {
-                stringBuilder.AppendFormat($"<br>{index++} {kv.Key} <font color='green'>({kv.Value})</font>");
-            }
+            if(!_config!.HudMenu)
+                foreach (var kv in Votes.OrderByDescending(x => x.Value).Take(MAX_OPTIONS_HUD_MENU).Where(x => x.Value > 0))
+                {
+                    stringBuilder.AppendFormat($"<br>{kv.Key} <font color='green'>({kv.Value})</font>");
+                }
+            else
+                foreach (var kv in Votes.Take(MAX_OPTIONS_HUD_MENU))
+                {
+                    stringBuilder.AppendFormat($"<br><font color='yellow'>!{index++}</font> {kv.Key} <font color='green'>({kv.Value})</font>");
+                }
+
             foreach (CCSPlayerController player in ServerManager.ValidPlayers())
             {
                 player.PrintToCenterHtml(stringBuilder.ToString());
@@ -164,7 +172,10 @@ namespace cs2_rockthevote
             Votes.Clear();
             _pluginState.EofVoteHappening = true;
             _config = config;
-            var mapsToShow = _config!.MapsToShow == 0 ? 5 : _config!.MapsToShow;
+            int mapsToShow = _config!.MapsToShow == 0 ? MAX_OPTIONS_HUD_MENU : _config!.MapsToShow;
+            if (config.HudMenu)
+                mapsToShow = MAX_OPTIONS_HUD_MENU;
+
             var mapsScrambled = Shuffle(new Random(), _mapLister.Maps!.Where(x => x != Server.MapName).ToList());
             mapsEllected = _nominationManager.NominationWinners().Concat(mapsScrambled).Distinct().ToList();
 
@@ -173,7 +184,10 @@ namespace cs2_rockthevote
             foreach (var map in mapsEllected.Take(mapsToShow))
             {
                 Votes[map] = 0;
-                menu.AddMenuOption(map, (player, option) => MapVoted(player, map));
+                menu.AddMenuOption(map, (player, option) => {
+                    MapVoted(player, map);
+                    MenuManager.CloseActiveMenu(player);
+                });
             }
 
             foreach (var player in ServerManager.ValidPlayers())
