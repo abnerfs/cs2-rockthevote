@@ -16,21 +16,33 @@ namespace cs2_rockthevote
     }
 
 
-    public class EndOfMapConfig: IVoteConfig
+    public interface IEndOfMapConfig
     {
+        public int MapsToShow { get; set; }
+        public bool ChangeMapImmediatly { get; set; }
+        public int VoteDuration { get; set; }
+        public int VotePercentage { get; set; }
+    }
+
+    public class EndOfMapConfig : IVoteConfig, IEndOfMapConfig
+    {
+        public bool Enabled { get; set; } = true;
         public int MapsToShow { get; set; } = 6;
         public bool ChangeMapImmediatly { get; set; } = false;
         public int VoteDuration { get; set; } = 30;
         public int VotePercentage { get; set; } = 60;
     }
 
-    public class RtvConfig : EndOfMapConfig, ICommandConfig, IVoteConfig
+    public class RtvConfig : ICommandConfig, IVoteConfig, IEndOfMapConfig
     {
         public bool Enabled { get; set; } = true;
         public bool EnabledInWarmup { get; set; } = true;
         public int MinPlayers { get; set; } = 0;
         public int MinRounds { get; set; } = 0;
-        public new bool ChangeMapImmediatly { get; set; } = true;
+        public bool ChangeMapImmediatly { get; set; } = true;
+        public int MapsToShow { get; set; } = 6;
+        public int VoteDuration { get; set; } = 30;
+        public int VotePercentage { get; set; } = 60;
     }
 
     public class VotemapConfig : ICommandConfig, IVoteConfig

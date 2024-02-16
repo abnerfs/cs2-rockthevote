@@ -38,10 +38,10 @@ namespace cs2_rockthevote
         {
             get
             {
-                if(MaxRoundsValue <= 0)
+                if (MaxRoundsValue <= 0)
                     return 0;
 
-                return ((int) Math.Floor(MaxRoundsValue / 2M)) + 1;
+                return ((int)Math.Floor(MaxRoundsValue / 2M)) + 1;
             }
         }
 
@@ -61,7 +61,7 @@ namespace cs2_rockthevote
         public void ClearRounds()
         {
             CTWins = 0;
-            TWins = 0; 
+            TWins = 0;
         }
 
         public void RoundWin(CsTeam team)
@@ -75,7 +75,7 @@ namespace cs2_rockthevote
             {
                 TWins++;
             }
-            Server.PrintToChatAll($"T Wins {TWins}, CTWins {CTWins}");
+            //Server.PrintToChatAll($"T Wins {TWins}, CTWins {CTWins}");
         }
 
         public void OnMapStart(string map)

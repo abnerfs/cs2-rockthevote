@@ -9,7 +9,7 @@ namespace cs2_rockthevote.Core
 
         private ConVar? _timeLimit;
 
-        private decimal TimeLimitValue => (decimal) _timeLimit!.GetPrimitiveValue<float>() * 60M;
+        private decimal TimeLimitValue => (decimal)_timeLimit!.GetPrimitiveValue<float>() * 60M;
 
         public bool UnlimitedTime => TimeLimitValue <= 0;
 
@@ -17,10 +17,10 @@ namespace cs2_rockthevote.Core
         {
             get
             {
-                if(_gameRules.WarmupRunning)
+                if (_gameRules.WarmupRunning)
                     return 0;
 
-                return (decimal) (Server.CurrentTime - _gameRules.GameStartTime);
+                return (decimal)(Server.CurrentTime - _gameRules.GameStartTime);
             }
         }
 
@@ -28,7 +28,7 @@ namespace cs2_rockthevote.Core
         {
             get
             {
-                if(UnlimitedTime || TimePlayed > TimeLimitValue) 
+                if (UnlimitedTime || TimePlayed > TimeLimitValue)
                     return 0;
 
                 return TimeLimitValue - TimePlayed;

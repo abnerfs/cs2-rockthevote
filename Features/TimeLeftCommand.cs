@@ -46,7 +46,7 @@ namespace cs2_rockthevote
             {
                 if (_timeLimitManager.TimeRemaining > 1)
                 {
-                    TimeSpan remaining = TimeSpan.FromSeconds((double) _timeLimitManager.TimeRemaining);
+                    TimeSpan remaining = TimeSpan.FromSeconds((double)_timeLimitManager.TimeRemaining);
                     if (remaining.Hours > 0)
                     {
                         player.PrintToChat(_localizer.LocalizeWithPrefix("timeleft.remaining-time-hour", remaining.Hours.ToString("00"), remaining.Minutes.ToString("00"), remaining.Seconds.ToString("00")));

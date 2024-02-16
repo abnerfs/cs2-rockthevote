@@ -34,15 +34,22 @@ namespace cs2_rockthevote
 
         bool CheckTimeLeft()
         {
-            return !_timeLimit.UnlimitedTime && _timeLimit.TimeRemaining <= 60M;
+            return !_timeLimit.UnlimitedTime && _timeLimit.TimeRemaining <= 120M;
         }
 
         public void StartVote()
         {
-            _voteManager.StartVote(_config);
+            KillTimer();
+            if (_config.Enabled)
+                _voteManager.StartVote(_config);
         }
 
         public void OnMapStart(string map)
+        {
+            KillTimer();
+        }
+
+        void KillTimer()
         {
             _timer?.Kill();
             _timer = null;
@@ -52,27 +59,23 @@ namespace cs2_rockthevote
         {
             plugin.RegisterEventHandler<EventRoundStart>((ev, info) =>
             {
-                if (!_pluginState.DisableCommands && !_gameRules.WarmupRunning && CheckMaxRounds())
-                {
+                if (!_pluginState.DisableCommands && !_gameRules.WarmupRunning && CheckMaxRounds() && _config.Enabled)
                     StartVote();
-                }
+
                 return HookResult.Continue;
             });
 
             plugin.RegisterEventHandler<EventRoundAnnounceMatchStart>((ev, info) =>
             {
-                _timer = plugin.AddTimer(1.0F, () =>
-                {
-                    if (_gameRules is not null && !_gameRules.WarmupRunning && !_pluginState.DisableCommands && _timeLimit.TimeRemaining > 0)
+                if (!_timeLimit.UnlimitedTime && _config.Enabled)
+                    _timer = plugin.AddTimer(1.0F, () =>
                     {
-                        if (CheckTimeLeft())
+                        if (_gameRules is not null && !_gameRules.WarmupRunning && !_pluginState.DisableCommands && _timeLimit.TimeRemaining > 0)
                         {
-                            StartVote();
-                            _timer?.Kill();
-                            _timer = null;
+                            if (CheckTimeLeft())
+                                StartVote();
                         }
-                    }
-                }, TimerFlags.REPEAT);
+                    }, TimerFlags.REPEAT);
                 return HookResult.Continue;
             });
         }
