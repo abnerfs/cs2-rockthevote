@@ -5,23 +5,6 @@ using Timer = CounterStrikeSharp.API.Modules.Timers.Timer;
 
 namespace cs2_rockthevote
 {
-    public partial class Plugin
-    {
-        [GameEventHandler(HookMode.Post)]
-        public HookResult OnRoundStartGameRules(EventRoundStart @event, GameEventInfo info)
-        {
-            _gameRules.SetGameRules();
-            return HookResult.Continue;
-        }
-
-        [GameEventHandler(HookMode.Post)]
-        public HookResult OnAnnounceWarmupGameRules(EventRoundAnnounceWarmup @event, GameEventInfo info)
-        {
-            _gameRules.SetGameRules();
-            return HookResult.Continue;
-        }
-    }
-
     public class GameRules : IPluginDependency<Plugin, Config>
     {
         CCSGameRules? _gameRules = null;
@@ -35,8 +18,13 @@ namespace cs2_rockthevote
             {
                 SetGameRules();
             });
+        }
 
-
+        public void OnLoad(Plugin plugin)
+        {
+            SetGameRulesAsync();
+            plugin.RegisterEventHandler<EventRoundStart>(OnRoundStart);
+            plugin.RegisterEventHandler<EventRoundAnnounceWarmup>(OnAnnounceWarmup);
         }
 
         public float GameStartTime => _gameRules!.GameStartTime;
@@ -46,9 +34,17 @@ namespace cs2_rockthevote
             SetGameRulesAsync();
         }
 
-        public void OnLoad(Plugin _plugin)
+
+        public HookResult OnRoundStart(EventRoundStart @event, GameEventInfo info)
         {
-            SetGameRulesAsync();
+            SetGameRules();
+            return HookResult.Continue;
+        }
+
+        public HookResult OnAnnounceWarmup(EventRoundAnnounceWarmup @event, GameEventInfo info)
+        {
+            SetGameRules();
+            return HookResult.Continue;
         }
 
         public bool WarmupRunning => _gameRules!.WarmupPeriod;

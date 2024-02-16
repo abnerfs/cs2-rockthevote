@@ -6,6 +6,7 @@ using CounterStrikeSharp.API.Modules.Menu;
 using CounterStrikeSharp.API.Modules.Timers;
 using System.Data;
 using System.Text;
+using static CounterStrikeSharp.API.Core.Listeners;
 using Timer = CounterStrikeSharp.API.Modules.Timers.Timer;
 
 namespace cs2_rockthevote
@@ -47,13 +48,14 @@ namespace cs2_rockthevote
 
         List<string> mapsEllected = new();
 
-        private EndOfMapConfig? _config = null;
+        private IEndOfMapConfig? _config = null;
         private int _canVote = 0;
         private Plugin? _plugin;
 
         public void OnLoad(Plugin plugin)
         {
             _plugin = plugin;
+            plugin.RegisterListener<OnTick>(VoteDisplayTick);
         }
 
         public void OnMapStart(string map)
@@ -115,6 +117,7 @@ namespace cs2_rockthevote
 
         void EndVote()
         {
+            bool mapEnd = _config is EndOfMapConfig;
             KillTimer();
             decimal maxVotes = Votes.Select(x => x.Value).Max();
             IEnumerable<KeyValuePair<string, int>> potentialWinners = Votes.Where(x => x.Value == maxVotes);
@@ -122,7 +125,7 @@ namespace cs2_rockthevote
             KeyValuePair<string, int> winner = potentialWinners.ElementAt(rnd.Next(0, potentialWinners.Count()));
 
             decimal totalVotes = Votes.Select(x => x.Value).Sum();
-            decimal percent = totalVotes > 0 ? (winner.Value / totalVotes) * 100M : 0;
+            decimal percent = totalVotes > 0 ? winner.Value / totalVotes * 100M : 0;
             if (maxVotes > 0)
             {
                 Server.PrintToChatAll(_localizer.LocalizeWithPrefix("emv.vote-ended", winner.Key, percent, totalVotes));
@@ -133,11 +136,14 @@ namespace cs2_rockthevote
             }
 
             PrintCenterTextAll(_localizer.Localize("emv.hud.finished", winner.Key));
-            _changeMapManager.ScheduleMapChange(winner.Key);
+            _changeMapManager.ScheduleMapChange(winner.Key, mapEnd: mapEnd);
             if (_config!.ChangeMapImmediatly)
-                _changeMapManager.ChangeNextMap();
+                _changeMapManager.ChangeNextMap(mapEnd);
             else
-                Server.PrintToChatAll(_localizer.LocalizeWithPrefix("general.changing-map-next-round", winner.Key));
+            {
+                if (!mapEnd)
+                    Server.PrintToChatAll(_localizer.LocalizeWithPrefix("general.changing-map-next-round", winner.Key));
+            }
         }
 
         IList<T> Shuffle<T>(Random rng, IList<T> array)
@@ -153,7 +159,7 @@ namespace cs2_rockthevote
             return array;
         }
 
-        public void StartVote(EndOfMapConfig config)
+        public void StartVote(IEndOfMapConfig config)
         {
             Votes.Clear();
             _pluginState.EofVoteHappening = true;

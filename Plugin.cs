@@ -1,6 +1,7 @@
 ﻿using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Core.Attributes.Registration;
+using CounterStrikeSharp.API.Core.Plugin;
 using Microsoft.Extensions.DependencyInjection;
 using static CounterStrikeSharp.API.Core.Listeners;
 
@@ -20,7 +21,7 @@ namespace cs2_rockthevote
     public partial class Plugin : BasePlugin, IPluginConfig<Config>
     {
         public override string ModuleName => "RockTheVote";
-        public override string ModuleVersion => "1.2.2";
+        public override string ModuleVersion => "1.3.0";
         public override string ModuleAuthor => "abnerfs";
         public override string ModuleDescription => "General purpose map voting plugin";
 
@@ -30,27 +31,22 @@ namespace cs2_rockthevote
         private readonly ChangeMapManager _changeMapManager;
         private readonly VotemapCommand _votemapManager;
         private readonly RockTheVoteCommand _rtvManager;
-        private readonly GameRules _gameRules;
         private readonly TimeLeftCommand _timeLeft;
-        private readonly EndMapVoteManager _endmapVoteManager;
+
 
         public Plugin(DependencyManager<Plugin, Config> dependencyManager,
             NominationCommand nominationManager,
             ChangeMapManager changeMapManager,
             VotemapCommand voteMapManager,
             RockTheVoteCommand rtvManager,
-            GameRules gameRules,
-            TimeLeftCommand timeLeft,
-            EndMapVoteManager endmapVoteManager)
+            TimeLeftCommand timeLeft)
         {
             _dependencyManager = dependencyManager;
             _nominationManager = nominationManager;
             _changeMapManager = changeMapManager;
             _votemapManager = voteMapManager;
             _rtvManager = rtvManager;
-            _gameRules = gameRules;
             _timeLeft = timeLeft;
-            _endmapVoteManager = endmapVoteManager;
         }
 
         public Config? Config { get; set; }
@@ -63,7 +59,6 @@ namespace cs2_rockthevote
         {
             _dependencyManager.OnPluginLoad(this);
             RegisterListener<OnMapStart>(_dependencyManager.OnMapStart);
-            RegisterListener<OnTick>(_endmapVoteManager.VoteDisplayTick);
         }
 
         [GameEventHandler(HookMode.Post)]
@@ -98,7 +93,7 @@ namespace cs2_rockthevote
         public void OnConfigParsed(Config config)
         {
             Config = config;
-            if (Config.Version < 5)
+            if (Config.Version < 6)
                 throw new Exception("Your config file is too old, please delete it from addons/counterstrikesharp/configs/plugins/RockTheVote and let the plugin recreate it on load");
 
             _dependencyManager.OnConfigParsed(config);
