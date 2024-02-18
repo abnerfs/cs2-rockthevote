@@ -134,6 +134,7 @@ namespace cs2_rockthevote
 
             decimal totalVotes = Votes.Select(x => x.Value).Sum();
             decimal percent = totalVotes > 0 ? winner.Value / totalVotes * 100M : 0;
+
             if (maxVotes > 0)
             {
                 Server.PrintToChatAll(_localizer.LocalizeWithPrefix("emv.vote-ended", winner.Key, percent, totalVotes));

@@ -37,6 +37,7 @@ namespace cs2_rockthevote
     {
         public bool Enabled { get; set; } = true;
         public bool EnabledInWarmup { get; set; } = true;
+        public bool NominationEnabled { get; set; } = true;
         public int MinPlayers { get; set; } = 0;
         public int MinRounds { get; set; } = 0;
         public bool ChangeMapImmediatly { get; set; } = true;
@@ -59,7 +60,7 @@ namespace cs2_rockthevote
 
     public class Config : IBasePluginConfig
     {
-        public int Version { get; set; } = 7;
+        public int Version { get; set; } = 8;
         public RtvConfig Rtv { get; set; } = new();
         public VotemapConfig Votemap { get; set; } = new();
         public EndOfMapConfig EndOfMapVote { get; set; } = new();

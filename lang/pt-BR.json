@@ -28,11 +28,13 @@
   "rtv.votes-reached": "Número de votos atingido, iniciando votação...",
   "rtv.disabled": "Rtv está desativado no momento",
   "emv.you-voted": "Você votou em {0}",
-  "emv.vote-ended": "Votação encerrada, o próximo mapa será {green}{0}{default} ({1}% de {2} voto(s))",
+  "emv.vote-ended": "Votação encerrada, o próximo mapa será {green}{0}{default} ({1:N2}% de {2} voto(s))",
   "emv.vote-ended-no-votes": "Sem votos, o próximo mapa será {green}{0}",
   "general.changing-map": "Mudando o mapa para {green}{0}",
   "general.changing-map-next-round": "O mapa será mudado para {green}{0}{default} no próximo round...",
   "emv.hud.menu-title": "Vote para o próximo mapa:",
   "emv.hud.hud-timer": "Vote para o próximo mapa: {0}s",
-  "emv.hud.finished": "Votação encerrada, próximo mapa: {0}"
+  "emv.hud.finished": "Votação encerrada, próximo mapa: {0}",
+  "nextmap": "O próximo mapa será {green}{0}",
+  "nextmap.decided-by-vote": "O próximo mapa será decidido pelo voto"
 }
