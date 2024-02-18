@@ -1,6 +1,7 @@
 ﻿using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Core.Attributes.Registration;
+using cs2_rockthevote.Features;
 using Microsoft.Extensions.DependencyInjection;
 using static CounterStrikeSharp.API.Core.Listeners;
 
@@ -20,7 +21,7 @@ namespace cs2_rockthevote
     public partial class Plugin : BasePlugin, IPluginConfig<Config>
     {
         public override string ModuleName => "RockTheVote";
-        public override string ModuleVersion => "1.4.0";
+        public override string ModuleVersion => "1.5.0";
         public override string ModuleAuthor => "abnerfs";
         public override string ModuleDescription => "General purpose map voting plugin";
 
@@ -31,14 +32,15 @@ namespace cs2_rockthevote
         private readonly VotemapCommand _votemapManager;
         private readonly RockTheVoteCommand _rtvManager;
         private readonly TimeLeftCommand _timeLeft;
-
+        private readonly NextMapCommand _nextMap;
 
         public Plugin(DependencyManager<Plugin, Config> dependencyManager,
             NominationCommand nominationManager,
             ChangeMapManager changeMapManager,
             VotemapCommand voteMapManager,
             RockTheVoteCommand rtvManager,
-            TimeLeftCommand timeLeft)
+            TimeLeftCommand timeLeft,
+            NextMapCommand nextMap)
         {
             _dependencyManager = dependencyManager;
             _nominationManager = nominationManager;
@@ -46,6 +48,7 @@ namespace cs2_rockthevote
             _votemapManager = voteMapManager;
             _rtvManager = rtvManager;
             _timeLeft = timeLeft;
+            _nextMap = nextMap;
         }
 
         public Config? Config { get; set; }
@@ -85,6 +88,10 @@ namespace cs2_rockthevote
             else if (text.StartsWith("timeleft"))
             {
                 _timeLeft.CommandHandler(player);
+            }
+            else if (text.StartsWith("nextmap"))
+            {
+                _nextMap.CommandHandler(player);
             }
             return HookResult.Continue;
         }

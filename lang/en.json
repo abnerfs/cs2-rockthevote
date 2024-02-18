@@ -28,11 +28,13 @@
   "rtv.votes-reached": "Number of votes reached, starting vote...",
   "rtv.disabled": "Rtv is disabled right now",
   "emv.you-voted": "You voted in {0}",
-  "emv.vote-ended": "Vote ended the next map will be {green}{0}{default} ({1}% of {2} vote(s))",
+  "emv.vote-ended": "Vote ended the next map will be {green}{0}{default} ({1:N2}% of {2} vote(s))",
   "emv.vote-ended-no-votes": "No votes, the next map will be {green}{0}",
   "general.changing-map": "Changing map to {green}{0}",
   "general.changing-map-next-round": "The map will be changed to {green}{0}{default} in the next round...",
   "emv.hud.menu-title": "Vote for the next map:",
   "emv.hud.hud-timer": "Vote for the next map: {0}s",
-  "emv.hud.finished": "Vote finished, next map: {0}"
+  "emv.hud.finished": "Vote finished, next map: {0}",
+  "nextmap": "Next map will be {green}{0}",
+  "nextmap.decided-by-vote": "Next map will be decided by vote"
 }

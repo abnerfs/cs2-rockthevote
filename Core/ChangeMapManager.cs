@@ -27,7 +27,7 @@ namespace cs2_rockthevote
         private StringLocalizer _localizer;
         private PluginState _pluginState;
 
-        private string? _nextMap = null;
+        public string? NextMap { get; private set; } = null;
         private string _prefix = DEFAULT_PREFIX;
         private const string DEFAULT_PREFIX = "rtv.prefix";
         private bool _mapEnd = false;
@@ -42,7 +42,7 @@ namespace cs2_rockthevote
 
         public void ScheduleMapChange(string map, bool mapEnd = false, string prefix = DEFAULT_PREFIX)
         {
-            _nextMap = map;
+            NextMap = map;
             _prefix = prefix;
             _pluginState.MapChangeScheduled = true;
             _mapEnd = mapEnd;
@@ -50,7 +50,7 @@ namespace cs2_rockthevote
 
         public void OnMapStart()
         {
-            _nextMap = null;
+            NextMap = null;
             _prefix = DEFAULT_PREFIX;
         }
 
@@ -63,15 +63,15 @@ namespace cs2_rockthevote
                 return false;
 
             _pluginState.MapChangeScheduled = false;
-            Server.PrintToChatAll(_localizer.LocalizeWithPrefixInternal(_prefix, "general.changing-map", _nextMap!));
+            Server.PrintToChatAll(_localizer.LocalizeWithPrefixInternal(_prefix, "general.changing-map", NextMap!));
             _plugin.AddTimer(3.0F, () =>
             {
-                if (Server.IsMapValid(_nextMap!))
+                if (Server.IsMapValid(NextMap!))
                 {
-                    Server.ExecuteCommand($"changelevel {_nextMap}");
+                    Server.ExecuteCommand($"changelevel {NextMap}");
                 }
                 else
-                    Server.ExecuteCommand($"ds_workshop_changelevel {_nextMap}");
+                    Server.ExecuteCommand($"ds_workshop_changelevel {NextMap}");
             });
             return true;
         }

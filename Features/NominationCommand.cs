@@ -71,7 +71,7 @@ namespace cs2_rockthevote
         public void CommandHandler(CCSPlayerController player, string map)
         {
             map = map.ToLower().Trim();
-            if (_pluginState.DisableCommands || !_config.Enabled)
+            if (_pluginState.DisableCommands || !_config.NominationEnabled)
             {
                 player.PrintToChat(_localizer.LocalizeWithPrefix("general.validation.disabled"));
                 return;

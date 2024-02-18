@@ -2,6 +2,7 @@
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Utils;
+using System.Security.Cryptography.X509Certificates;
 
 namespace cs2_rockthevote
 {
@@ -14,6 +15,7 @@ namespace cs2_rockthevote
         private ConVar? _maxRounds;
         private int MaxRoundsValue => _maxRounds!.GetPrimitiveValue<int>();
         public bool UnlimitedRounds => MaxRoundsValue <= 0;
+        private bool _lastBeforeHalf = false;
         public int RemainingRounds
         {
             get
@@ -62,6 +64,14 @@ namespace cs2_rockthevote
         {
             CTWins = 0;
             TWins = 0;
+            _lastBeforeHalf = false;
+        }
+
+        void SwapScores()
+        {
+            var oldCtWins = CTWins;
+            CTWins = TWins;
+            TWins = oldCtWins;
         }
 
         public void RoundWin(CsTeam team)
@@ -95,15 +105,29 @@ namespace cs2_rockthevote
                 if (winner is not null)
                     RoundWin(winner.Value);
 
+                if (_lastBeforeHalf)
+                    SwapScores();
+
+                _lastBeforeHalf = false;
                 return HookResult.Continue;
             });
 
+
+            plugin.RegisterEventHandler<EventRoundAnnounceLastRoundHalf>((@event, info) =>
+            {
+                if(@event is null)
+                    return HookResult.Continue;
+
+                _lastBeforeHalf = true;
+                return HookResult.Continue;
+            });
+            
 
             plugin.RegisterEventHandler<EventRoundAnnounceMatchStart>((@event, info) =>
             {
                 if (@event is null)
                     return HookResult.Continue;
-
+                                
                 ClearRounds();
                 return HookResult.Continue;
             });
