@@ -15,6 +15,9 @@ Players can vote to change to an specific map by using the votemap <mapname> com
 ## Timeleft
 Players can type `timeleft` to see how much time is left in the current map 
 
+## Nextmap
+Players can type `nextmap` to see which map is going to be played next
+
 # Features
 - Reads from a custom maplist
 - RTV Command
@@ -25,6 +28,7 @@ Players can type `timeleft` to see how much time is left in the current map
 - Votemap chatmenu
 - Supports workshop maps
 - Configurable 
+- Nextmap command
   
 
 # Limitations
@@ -46,10 +50,11 @@ Players can type `timeleft` to see how much time is left in the current map
 
 ```json
 {
-  "Version": 7,
+  "Version": 8,
   "Rtv": {
     "Enabled": true,
     "EnabledInWarmup": true,
+    "NominationEnabled": true,
     "MinPlayers": 0,
     "MinRounds": 0,
     "ChangeMapImmediatly": true,
