@@ -32,8 +32,7 @@ Players can type `nextmap` to see which map is going to be played next
   
 
 # Limitations
- - Plugins is still under development and a lot of functionality is still missing like a proper end of map vote.
- - Previous version relied on the official CS2 vote system, I pivoted this idea in favor of adding the nominate command, I will probably create another plugin with the original idea as soon as I figure out how to do the nominate command that way.
+ - Plugins is still under development and a lot of functionality is still going to be added in the future.
  - I usually test the new versions in an empty server with bots so it is hard to tell if everything is actually working, feel free to post any issues here or in the discord thread so I can fix them https://discord.com/channels/1160907911501991946/1176224458751627514
   
 ## Requirements
