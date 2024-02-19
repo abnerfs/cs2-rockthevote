@@ -27,7 +27,7 @@ namespace cs2_rockthevote
             plugin.RegisterEventHandler<EventRoundAnnounceWarmup>(OnAnnounceWarmup);
         }
 
-        public float GameStartTime => _gameRules!.GameStartTime;
+        public float GameStartTime => _gameRules?.GameStartTime ?? 0;
 
         public void OnMapStart(string map)
         {
@@ -47,8 +47,8 @@ namespace cs2_rockthevote
             return HookResult.Continue;
         }
 
-        public bool WarmupRunning => _gameRules!.WarmupPeriod;
+        public bool WarmupRunning => _gameRules?.WarmupPeriod ?? false;
 
-        public int TotalRoundsPlayed => _gameRules!.TotalRoundsPlayed;
+        public int TotalRoundsPlayed => _gameRules?.TotalRoundsPlayed ?? 0;
     }
 }
