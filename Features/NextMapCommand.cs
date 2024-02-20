@@ -1,9 +1,5 @@
-﻿using CounterStrikeSharp.API.Core;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using CounterStrikeSharp.API;
+using CounterStrikeSharp.API.Core;
 
 namespace cs2_rockthevote.Features
 {
@@ -11,6 +7,7 @@ namespace cs2_rockthevote.Features
     {
         private ChangeMapManager _changeMapManager;
         private StringLocalizer _stringLocalizer;
+        private NextmapConfig _config = new();
 
         public NextMapCommand(ChangeMapManager changeMapManager, StringLocalizer stringLocalizer)
         {
@@ -21,12 +18,20 @@ namespace cs2_rockthevote.Features
         public void CommandHandler(CCSPlayerController? player)
         {
             if (player is not null)
+            {
+                string text;
                 if (_changeMapManager.NextMap is not null)
                 {
-                    player.PrintToChat(_stringLocalizer.LocalizeWithPrefix("nextmap", _changeMapManager.NextMap));
+                    text = _stringLocalizer.LocalizeWithPrefix("nextmap", _changeMapManager.NextMap);
                 }
                 else
-                    player.PrintToChat(_stringLocalizer.LocalizeWithPrefix("nextmap.decided-by-vote"));
+                    text = _stringLocalizer.LocalizeWithPrefix("nextmap.decided-by-vote");
+
+                if (_config.ShowToAll)
+                    Server.PrintToChatAll(text);
+                else
+                    player.PrintToChat(text);
+            }
         }
 
         public void OnLoad(Plugin plugin) {
@@ -35,6 +40,11 @@ namespace cs2_rockthevote.Features
             {
                 CommandHandler(player);
             });
+        }
+
+        public void OnConfigParsed(Config config)
+        {
+            _config = config.Nextmap ?? new();
         }
     }
 }

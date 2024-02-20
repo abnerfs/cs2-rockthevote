@@ -21,7 +21,7 @@ namespace cs2_rockthevote
     public partial class Plugin : BasePlugin, IPluginConfig<Config>
     {
         public override string ModuleName => "RockTheVote";
-        public override string ModuleVersion => "1.5.1";
+        public override string ModuleVersion => "1.6.0";
         public override string ModuleAuthor => "abnerfs";
         public override string ModuleDescription => "General purpose map voting plugin";
 
@@ -99,6 +99,10 @@ namespace cs2_rockthevote
         public void OnConfigParsed(Config config)
         {
             Config = config;
+
+            if (Config.Version < 9)
+                Console.WriteLine("[RockTheVote] please delete it from addons/counterstrikesharp/configs/plugins/RockTheVote and let the plugin recreate it on load");
+
             if (Config.Version < 7)
                 throw new Exception("Your config file is too old, please delete it from addons/counterstrikesharp/configs/plugins/RockTheVote and let the plugin recreate it on load");
 
