@@ -1,7 +1,5 @@
 ﻿using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
-using CounterStrikeSharp.API.Core.Attributes.Registration;
-using CounterStrikeSharp.API.Modules.Commands;
 using CounterStrikeSharp.API.Modules.Menu;
 using CounterStrikeSharp.API.Modules.Timers;
 using System.Data;
@@ -53,6 +51,8 @@ namespace cs2_rockthevote
         private int _canVote = 0;
         private Plugin? _plugin;
 
+        HashSet<int> _voted = new();
+
         public void OnLoad(Plugin plugin)
         {
             _plugin = plugin;
@@ -69,6 +69,9 @@ namespace cs2_rockthevote
 
         public void MapVoted(CCSPlayerController player, string mapName)
         {
+            if (_config!.HideHudAfterVote)
+                _voted.Add(player.UserId!.Value);
+
             Votes[mapName] += 1;
             player.PrintToChat(_localizer.LocalizeWithPrefix("emv.you-voted", mapName));
             if (Votes.Select(x => x.Value).Sum() >= _canVote)
@@ -117,7 +120,7 @@ namespace cs2_rockthevote
                     stringBuilder.AppendFormat($"<br><font color='yellow'>!{index++}</font> {kv.Key} <font color='green'>({kv.Value})</font>");
                 }
 
-            foreach (CCSPlayerController player in ServerManager.ValidPlayers())
+            foreach (CCSPlayerController player in ServerManager.ValidPlayers().Where(x => !_voted.Contains(x.UserId!.Value)))
             {
                 player.PrintToCenterHtml(stringBuilder.ToString());
             }
@@ -171,10 +174,12 @@ namespace cs2_rockthevote
         public void StartVote(IEndOfMapConfig config)
         {
             Votes.Clear();
+            _voted.Clear();
+
             _pluginState.EofVoteHappening = true;
             _config = config;
             int mapsToShow = _config!.MapsToShow == 0 ? MAX_OPTIONS_HUD_MENU : _config!.MapsToShow;
-            if (config.HudMenu)
+            if (config.HudMenu && mapsToShow > MAX_OPTIONS_HUD_MENU)
                 mapsToShow = MAX_OPTIONS_HUD_MENU;
 
             var mapsScrambled = Shuffle(new Random(), _mapLister.Maps!.Where(x => x != Server.MapName).ToList());

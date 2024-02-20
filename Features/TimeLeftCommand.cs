@@ -1,4 +1,5 @@
-﻿using CounterStrikeSharp.API.Core;
+﻿using CounterStrikeSharp.API;
+using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Core.Attributes.Registration;
 using CounterStrikeSharp.API.Modules.Commands;
 using cs2_rockthevote.Core;
@@ -23,7 +24,7 @@ namespace cs2_rockthevote
 
 
         private StringLocalizer _localizer;
-
+        private TimeleftConfig _config = new();
 
         public TimeLeftCommand(TimeLimitManager timeLimitManager, MaxRoundsManager maxRoundsManager, GameRules gameRules, IStringLocalizer stringLocalizer)
         {
@@ -36,6 +37,8 @@ namespace cs2_rockthevote
 
         public void CommandHandler(CCSPlayerController player)
         {
+            string text;
+
             if (_gameRules.WarmupRunning)
             {
                 player.PrintToChat(_localizer.LocalizeWithPrefix("general.validation.warmup"));
@@ -49,33 +52,43 @@ namespace cs2_rockthevote
                     TimeSpan remaining = TimeSpan.FromSeconds((double)_timeLimitManager.TimeRemaining);
                     if (remaining.Hours > 0)
                     {
-                        player.PrintToChat(_localizer.LocalizeWithPrefix("timeleft.remaining-time-hour", remaining.Hours.ToString("00"), remaining.Minutes.ToString("00"), remaining.Seconds.ToString("00")));
+                        text = _localizer.LocalizeWithPrefix("timeleft.remaining-time-hour", remaining.Hours.ToString("00"), remaining.Minutes.ToString("00"), remaining.Seconds.ToString("00"));
                     }
                     else if (remaining.Minutes > 0)
                     {
-                        player.PrintToChat(_localizer.LocalizeWithPrefix("timeleft.remaining-time-minute", remaining.Minutes, remaining.Seconds));
+                        text = _localizer.LocalizeWithPrefix("timeleft.remaining-time-minute", remaining.Minutes, remaining.Seconds);
                     }
                     else
                     {
-                        player.PrintToChat(_localizer.LocalizeWithPrefix("timeleft.remaining-time-second", remaining.Seconds));
+                        text = _localizer.LocalizeWithPrefix("timeleft.remaining-time-second", remaining.Seconds);
                     }
                 }
                 else
                 {
-                    player.PrintToChat(_localizer.LocalizeWithPrefix("timeleft.time-over"));
+                   text = _localizer.LocalizeWithPrefix("timeleft.time-over");
                 }
             }
             else if (!_maxRoundsManager.UnlimitedRounds)
             {
                 if (_maxRoundsManager.RemainingRounds > 1)
-                    player.PrintToChat(_localizer.LocalizeWithPrefix("timeleft.remaining-rounds", _maxRoundsManager.RemainingRounds));
+                    text = _localizer.LocalizeWithPrefix("timeleft.remaining-rounds", _maxRoundsManager.RemainingRounds);
                 else
-                    player.PrintToChat(_localizer.LocalizeWithPrefix("timeleft.last-round"));
+                    text = _localizer.LocalizeWithPrefix("timeleft.last-round");
             }
             else
             {
-                player.PrintToChat(_localizer.LocalizeWithPrefix("timeleft.no-time-limit"));
+                text = _localizer.LocalizeWithPrefix("timeleft.no-time-limit");
             }
+
+            if (_config.ShowToAll)
+                Server.PrintToChatAll(text);
+            else
+                player.PrintToChat(text);
+        }
+
+        public void OnConfigParsed(Config config)
+        {
+            _config = config.Timeleft ?? new();
         }
     }
 }
