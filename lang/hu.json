@@ -28,7 +28,7 @@
   "rtv.votes-reached": "A szükséges szavazatszám elérve, kezdődik a szavazás...",
   "rtv.disabled": "Az RTV jelenleg nem használható",
   "emv.you-voted": "Erre szavaztál: {0}",
-  "emv.vote-ended": "A pályaszavazás végetért, a következő pálya: {green}{0}{default} ({1}% / {2} szavazatok)",
+  "emv.vote-ended": "A pályaszavazás végetért, a következő pálya: {green}{0}{default} ({1:N2}% / {2} szavazatok)",
   "emv.vote-ended-no-votes": "Nincs szavazat, a következő pálya: {green}{0}",
   "general.changing-map": "Pályaváltás ide: {green}{0}",
   "general.changing-map-next-round": "A pálya el lesz váltva ide: {green}{0}{default} a következő körben...",
