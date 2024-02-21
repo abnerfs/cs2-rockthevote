@@ -182,7 +182,7 @@ namespace cs2_rockthevote
             if (config.HudMenu && mapsToShow > MAX_OPTIONS_HUD_MENU)
                 mapsToShow = MAX_OPTIONS_HUD_MENU;
 
-            var mapsScrambled = Shuffle(new Random(), _mapLister.Maps!.Where(x => x != Server.MapName).ToList());
+            var mapsScrambled = Shuffle(new Random(), _mapLister.Maps!.Select(x => x.Name).Where(x => x != Server.MapName).ToList());
             mapsEllected = _nominationManager.NominationWinners().Concat(mapsScrambled).Distinct().ToList();
 
             _canVote = ServerManager.ValidPlayerCount();
