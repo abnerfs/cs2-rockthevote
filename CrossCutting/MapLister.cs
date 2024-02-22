@@ -1,11 +1,13 @@
-﻿namespace cs2_rockthevote
+﻿using cs2_rockthevote.Core;
+
+namespace cs2_rockthevote
 {
     public class MapLister : IPluginDependency<Plugin, Config>
     {
-        public string[]? Maps { get; private set; } = null;
+        public Map[]? Maps { get; private set; } = null;
         public bool MapsLoaded { get; private set; } = false;
 
-        public event EventHandler<string[]>? EventMapsLoaded;
+        public event EventHandler<Map[]>? EventMapsLoaded;
 
         private Plugin? _plugin;
 
@@ -32,6 +34,11 @@
                 .Split("\n")
                 .Select(x => x.Trim())
                 .Where(x => !string.IsNullOrWhiteSpace(x) && !x.StartsWith("//"))
+                .Select(mapLine =>
+                {
+                    string[] args = mapLine.Split(":");
+                    return new Map(args[0], args.Length == 2 ? args[1] : null);
+                })
                 .ToArray();
 
             MapsLoaded = true;

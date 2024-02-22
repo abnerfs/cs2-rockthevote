@@ -32,6 +32,13 @@ Players can type `nextmap` to see which map is going to be played next
 - Configurable 
 - Nextmap command
   
+## Adding workshop maps
+In order to add workshop maps you need to know it's id and add as following in the maplist.txt file <mapname>:<workshop-id>
+
+```
+de_thera:3121217565
+de_dust2
+```
 
 # Limitations
  - Plugins is still under development and a lot of functionality is still going to be added in the future.

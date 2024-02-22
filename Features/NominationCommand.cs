@@ -56,12 +56,12 @@ namespace cs2_rockthevote
         }
 
 
-        public void OnMapsLoaded(object? sender, string[] maps)
+        public void OnMapsLoaded(object? sender, Map[] maps)
         {
             nominationMenu = new("Nomination");
-            foreach (var map in _mapLister.Maps!.Where(x => x != Server.MapName))
+            foreach (var map in _mapLister.Maps!.Where(x => x.Name != Server.MapName))
             {
-                nominationMenu.AddMenuOption(map, (CCSPlayerController player, ChatMenuOption option) =>
+                nominationMenu.AddMenuOption(map.Name, (CCSPlayerController player, ChatMenuOption option) =>
                 {
                     Nominate(player, option.Text);
                 });
@@ -107,7 +107,7 @@ namespace cs2_rockthevote
 
         public void OpenNominationMenu(CCSPlayerController player)
         {
-            ChatMenus.OpenMenu(player!, nominationMenu!);
+            MenuManager.OpenChatMenu(player!, nominationMenu!);
         }
 
         void Nominate(CCSPlayerController player, string map)
@@ -118,7 +118,7 @@ namespace cs2_rockthevote
                 return;
             }
 
-            if (_mapLister.Maps!.FirstOrDefault(x => x.ToLower() == map) is null)
+            if (_mapLister.Maps!.Select(x => x.Name).FirstOrDefault(x => x.ToLower() == map) is null)
             {
                 player!.PrintToChat(_localizer.LocalizeWithPrefix("general.invalid-map"));
                 return;
