@@ -118,28 +118,39 @@ namespace cs2_rockthevote
                 return;
             }
 
-            if (_mapLister.Maps!.Select(x => x.Name).FirstOrDefault(x => x.ToLower() == map) is null)
+            var matchingMaps = _mapLister.Maps!
+                .Select(x => x.Name)
+                .Where(x => x.ToLower().Contains(map.ToLower()))
+                .ToList();
+
+            if (matchingMaps.Count == 0)
             {
                 player!.PrintToChat(_localizer.LocalizeWithPrefix("general.invalid-map"));
                 return;
-
             }
+            else if (matchingMaps.Count > 1)
+            {
+                player!.PrintToChat(_localizer.LocalizeWithPrefix("nominate.multiple-maps-containing-name"));
+                return;
+            }
+
+            string matchingMap = matchingMaps[0];
 
             var userId = player.UserId!.Value;
             if (!Nominations.ContainsKey(userId))
                 Nominations[userId] = new();
 
-            bool alreadyVoted = Nominations[userId].IndexOf(map) != -1;
+            bool alreadyVoted = Nominations[userId].IndexOf(matchingMap) != -1;
             if (!alreadyVoted)
-                Nominations[userId].Add(map);
+                Nominations[userId].Add(matchingMap);
 
-            var totalVotes = Nominations.Select(x => x.Value.Where(y => y == map).Count())
+            var totalVotes = Nominations.Select(x => x.Value.Where(y => y == matchingMap).Count())
                 .Sum();
 
             if (!alreadyVoted)
-                Server.PrintToChatAll(_localizer.LocalizeWithPrefix("nominate.nominated", player.PlayerName, map, totalVotes));
+                Server.PrintToChatAll(_localizer.LocalizeWithPrefix("nominate.nominated", player.PlayerName, matchingMap, totalVotes));
             else
-                player.PrintToChat(_localizer.LocalizeWithPrefix("nominate.already-nominated", map, totalVotes));
+                player.PrintToChat(_localizer.LocalizeWithPrefix("nominate.already-nominated", matchingMap, totalVotes));
         }
 
         public List<string> NominationWinners()
