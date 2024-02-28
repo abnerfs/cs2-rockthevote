@@ -18,6 +18,7 @@
   "general.invalid-map": "Mapa inválido",
   "nominate.nominated": "O jogador {green}{0}{default} indicou o mapa {green}{1}{default}, agora ele tem {2} voto(s)",
   "nominate.already-nominated": "Você já indicou o mapa {green}{0}{default}, ele tem {1} voto(s)",
+  "nominate.multiple-maps-containing-name": "Há mais de um mapa com o nome fornecido, seja mais específico!",
   "general.validation.current-map": "Você não pode escolher o mapa atual",
   "general.validation.minimum-rounds": "O número mínimo de rounds para usar este comando é {0}",
   "general.validation.warmup": "Comando desativado durante o aquecimento.",

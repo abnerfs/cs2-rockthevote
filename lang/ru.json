@@ -18,6 +18,7 @@
   "general.invalid-map": "Неверная карта",
   "nominate.nominated": "Игрок {green}{0}{default} предложил карту {green}{1}{default}, сейчас она имеет {2} голосов",
   "nominate.already-nominated": "Вы уже предложили эту карту {green}{0}{default}, она имеет {1} голосов",
+  "nominate.multiple-maps-containing-name": "Больше одной карты с данным именем, уточните!",
   "general.validation.current-map": "Вы не можете выбрать текущую карту",
   "general.validation.minimum-rounds": "Минимальное количество раундов для использования этой команды {0}",
   "general.validation.warmup": "Команда отключена во время разминки",
