@@ -18,6 +18,7 @@
   "general.invalid-map": "Invalid map",
   "nominate.nominated": "Player {green}{0}{default} nominated map {green}{1}{default}, now it has {2} vote(s)",
   "nominate.already-nominated": "You already nominated the map {green}{0}{default}, it has {1} vote(s)",
+  "nominate.multiple-maps-containing-name": "There's more than one map with the given name",
   "general.validation.current-map": "You can't choose the current map",
   "general.validation.minimum-rounds": "Minimum rounds to use this command is {0}",
   "general.validation.warmup": "Command disabled during warmup.",

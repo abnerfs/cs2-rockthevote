@@ -18,6 +18,7 @@
   "general.invalid-map": "Neatbilstoša karte",
   "nominate.nominated": "Spēlētājs {green}{0}{default} izvirzija karti {green}{1}{default}, šobrīd ir tai ir {2} balss(is)",
   "nominate.already-nominated": "Tu jau izvirzīji karti {green}{0}{default}, tai ir {1} balss(is)",
+  "nominate.multiple-maps-containing-name": "Ir vairāki kartes ar dotajiem nosaukumiem, būsiet precīzāki!",
   "general.validation.current-map": "Tu nevari izvēlēties karti kas šobrīd tiek spēlēta",
   "general.validation.minimum-rounds": "Jānospēlē raundi {0} lai izmantotu šo komandu",
   "general.validation.warmup": "Komanda nav pieejama warmup laikā.",

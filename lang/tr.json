@@ -18,6 +18,7 @@
   "general.invalid-map": "Geçersiz harita",
   "nominate.nominated": "Oyuncu {green}{0}{default}, {green}{1}{default} haritasını aday gösterdi, şimdi {2} oyu var",
   "nominate.already-nominated": "{green}{0}{default} haritasını zaten aday gösterdiniz, {1} oyu var",
+  "nominate.multiple-maps-containing-name": "Verilen isme sahip birden fazla harita var, daha belirgin olun!",
   "general.validation.current-map": "Mevcut haritayı seçemezsiniz",
   "general.validation.minimum-rounds": "Bu komutu kullanmak için minimum tur sayısı {0}",
   "general.validation.warmup": "Isınma sırasında komut devre dışı bırakıldı.",
