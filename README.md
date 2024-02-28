@@ -41,7 +41,7 @@ Feeling like paying me a ☕? Go ahead and donate:
 | Ukrainian            | panikajo               |
 | Turkish              | brkvlr                 |
 | Russian              | Auttend                |
-| Lativian             | rcon420                |
+| Latvian              | rcon420                |
 | Hungarian            | Chickender, lovasatt   |
 | Polish               | D3X                    |
   
