@@ -65,6 +65,9 @@ namespace cs2_rockthevote
         // otherwise, returns the macting name
         public string GetSingleMatchingMapName(string map, CCSPlayerController player, StringLocalizer _localizer)
         {
+            if (this.Maps!.Select(x => x.Name).FirstOrDefault(x => x.ToLower() == map) is not null)
+                return map;
+
             var matchingMaps = this.Maps!
                 .Select(x => x.Name)
                 .Where(x => x.ToLower().Contains(map.ToLower()))
