@@ -118,23 +118,10 @@ namespace cs2_rockthevote
                 return;
             }
 
-            var matchingMaps = _mapLister.Maps!
-                .Select(x => x.Name)
-                .Where(x => x.ToLower().Contains(map.ToLower()))
-                .ToList();
+            string matchingMap = _mapLister.GetSingleMatchingMapName(map, player, _localizer);
 
-            if (matchingMaps.Count == 0)
-            {
-                player!.PrintToChat(_localizer.LocalizeWithPrefix("general.invalid-map"));
+            if (matchingMap == "")
                 return;
-            }
-            else if (matchingMaps.Count > 1)
-            {
-                player!.PrintToChat(_localizer.LocalizeWithPrefix("nominate.multiple-maps-containing-name"));
-                return;
-            }
-
-            string matchingMap = matchingMaps[0];
 
             var userId = player.UserId!.Value;
             if (!Nominations.ContainsKey(userId))
