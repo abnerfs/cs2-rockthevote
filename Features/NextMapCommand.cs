@@ -34,7 +34,8 @@ namespace cs2_rockthevote.Features
             }
         }
 
-        public void OnLoad(Plugin plugin) {
+        public void OnLoad(Plugin plugin)
+        {
 
             plugin.AddCommand("nextmap", "Shows nextmap when defined", (player, info) =>
             {

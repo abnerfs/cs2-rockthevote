@@ -82,11 +82,11 @@ namespace cs2_rockthevote
                 {
                     Server.ExecuteCommand($"changelevel {map.Name}");
                 }
-                else if(map.Id is not null)
+                else if (map.Id is not null)
                 {
                     Server.ExecuteCommand($"host_workshop_map {map.Id}");
                 }
-                else 
+                else
                     Server.ExecuteCommand($"ds_workshop_changelevel {map.Name}");
             });
             return true;

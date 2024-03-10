@@ -1,5 +1,6 @@
 ﻿using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
+using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Timers;
 using cs2_rockthevote.Core;
 using Timer = CounterStrikeSharp.API.Modules.Timers.Timer;
@@ -15,6 +16,9 @@ namespace cs2_rockthevote
         private EndMapVoteManager _voteManager;
         private EndOfMapConfig _config = new();
         private Timer? _timer;
+        private bool deathMatch => _gameMode?.GetPrimitiveValue<int>() == 2 && _gameType?.GetPrimitiveValue<int>() == 1;
+        private ConVar? _gameType;
+        private ConVar? _gameMode;
 
         public EndOfMapVote(TimeLimitManager timeLimit, MaxRoundsManager maxRounds, PluginState pluginState, GameRules gameRules, EndMapVoteManager voteManager)
         {
@@ -55,19 +59,18 @@ namespace cs2_rockthevote
             _timer = null;
         }
 
+
+
         public void OnLoad(Plugin plugin)
         {
-            plugin.RegisterEventHandler<EventRoundStart>((ev, info) =>
-            {
-                if (!_pluginState.DisableCommands && !_gameRules.WarmupRunning && CheckMaxRounds() && _config.Enabled)
-                    StartVote();
+            _gameMode = ConVar.Find("game_mode");
+            _gameType = ConVar.Find("game_type");
 
-                return HookResult.Continue;
-            });
-
-            plugin.RegisterEventHandler<EventRoundAnnounceMatchStart>((ev, info) =>
+            void MaybeStartTimer()
             {
+                KillTimer();
                 if (!_timeLimit.UnlimitedTime && _config.Enabled)
+                {
                     _timer = plugin.AddTimer(1.0F, () =>
                     {
                         if (_gameRules is not null && !_gameRules.WarmupRunning && !_pluginState.DisableCommands && _timeLimit.TimeRemaining > 0)
@@ -76,6 +79,25 @@ namespace cs2_rockthevote
                                 StartVote();
                         }
                     }, TimerFlags.REPEAT);
+                }
+            }
+
+            plugin.RegisterEventHandler<EventRoundStart>((ev, info) =>
+            {
+
+                if (!_pluginState.DisableCommands && !_gameRules.WarmupRunning && CheckMaxRounds() && _config.Enabled)
+                    StartVote();
+                else if (deathMatch)
+                {
+                    MaybeStartTimer();
+                }
+
+                return HookResult.Continue;
+            });
+
+            plugin.RegisterEventHandler<EventRoundAnnounceMatchStart>((ev, info) =>
+            {
+                MaybeStartTimer();
                 return HookResult.Continue;
             });
         }

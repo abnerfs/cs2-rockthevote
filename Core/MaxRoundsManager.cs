@@ -122,19 +122,19 @@ namespace cs2_rockthevote
 
             plugin.RegisterEventHandler<EventRoundAnnounceLastRoundHalf>((@event, info) =>
             {
-                if(@event is null)
+                if (@event is null)
                     return HookResult.Continue;
 
                 _lastBeforeHalf = true;
                 return HookResult.Continue;
             });
-            
+
 
             plugin.RegisterEventHandler<EventRoundAnnounceMatchStart>((@event, info) =>
             {
                 if (@event is null)
                     return HookResult.Continue;
-                                
+
                 ClearRounds();
                 return HookResult.Continue;
             });

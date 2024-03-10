@@ -65,7 +65,7 @@ namespace cs2_rockthevote
                 }
                 else
                 {
-                   text = _localizer.LocalizeWithPrefix("timeleft.time-over");
+                    text = _localizer.LocalizeWithPrefix("timeleft.time-over");
                 }
             }
             else if (!_maxRoundsManager.UnlimitedRounds)
