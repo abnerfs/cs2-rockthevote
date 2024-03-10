@@ -34,17 +34,19 @@ Feeling like paying me a ☕? Go ahead and donate:
 - Translated by the community
 
 # Translations
-| Language             | Contributor            |
-|----------------------|------------------------|
-| Brazilian Portuguese | abnerfs                |
-| English              | abnerfs                |
-| Ukrainian            | panikajo               |
-| Turkish              | brkvlr                 |
-| Russian              | Auttend                |
-| Latvian              | rcon420                |
-| Hungarian            | Chickender, lovasatt   |
-| Polish               | D3X                    |
-  
+| Language             | Contributor          |
+| -------------------- | -------------------- |
+| Brazilian Portuguese | abnerfs              |
+| English              | abnerfs              |
+| Ukrainian            | panikajo             |
+| Turkish              | brkvlr               |
+| Russian              | Auttend              |
+| Latvian              | rcon420              |
+| Hungarian            | Chickender, lovasatt |
+| Polish               | D3X                  |
+| French               | o3LL                 |
+| Chinese (zh-Hans)    | himenekocn           |
+
 # Configs
 - A config file will be created in `addons/counterstrikesharp/configs/plugins/RockTheVote` the first time you load the plugin.
 - Changes in the config file will require you to reload the plugin or restart the server (change the map won't work).
@@ -54,7 +56,7 @@ Feeling like paying me a ☕? Go ahead and donate:
 Players can type rtv to request the map to be changed, once a number of votes is reached (by default 60% of players in the server) a vote will start for the next map, this vote lasts up to 30 seconds (hardcoded for now), in the end server changes to the winner map.
 
 | Config              | Description                                                                                                            | Default Value | Min   | Max                                  |
-|---------------------|------------------------------------------------------------------------------------------------------------------------|---------------|-------|--------------------------------------|
+| ------------------- | ---------------------------------------------------------------------------------------------------------------------- | ------------- | ----- | ------------------------------------ |
 | Enabled             | Enable/Disable RTV functionality                                                                                       | true          | false | true                                 |
 | EnabledInWarmup     | Enable/Disable RTV during warmup                                                                                       | false         | false | true                                 |
 | NominationEnabled   | Enable/Disable nomination                                                                                              | true          | false | true                                 |
@@ -72,7 +74,7 @@ Players can type rtv to request the map to be changed, once a number of votes is
 Based on mp_timelimit and mp_maxrounds cvar before the map ends a RTV like vote will start to define the next map, it can be configured to change immediatly or only when the map actually ends
 
 | Config                  | Description                                                                                                            | Default Value | Min   | Max                                  |
-|-------------------------|------------------------------------------------------------------------------------------------------------------------|---------------|-------|--------------------------------------|
+| ----------------------- | ---------------------------------------------------------------------------------------------------------------------- | ------------- | ----- | ------------------------------------ |
 | Enabled                 | Enable/Disable end of map vote functionality                                                                           | true          | false | true                                 |
 | ChangeMapImmediatly     | Whether to change the map immediatly when vote ends or not                                                             | true          | false | true                                 |
 | HideHudAfterVote        | Whether to hide vote status hud after vote or not, only matters when HudMenu is true                                   | false         | false | true                                 |
@@ -86,7 +88,7 @@ Based on mp_timelimit and mp_maxrounds cvar before the map ends a RTV like vote 
 Players can vote to change to an specific map by using the votemap <mapname> command
 
 | Config              | Description                                                              | Default Value | Min   | Max  |
-|---------------------|--------------------------------------------------------------------------|---------------|-------|------|
+| ------------------- | ------------------------------------------------------------------------ | ------------- | ----- | ---- |
 | Enabled             | Enable/disable votemap funtionality                                      | true          | false | tru  |
 | VotePercentage      | Percentage of players that should vote in a map in order to change to it | 60            | 1     | 100  |
 | ChangeMapImmediatly | Whether to change the map immediatly when vote ends or not               | true          | false | true |
@@ -99,14 +101,14 @@ Players can vote to change to an specific map by using the votemap <mapname> com
 Players can type `timeleft` to see how much time is left in the current map 
 
 | Config    | Description                                                                      | Default Value | Min   | Max  |
-|-----------|----------------------------------------------------------------------------------|---------------|-------|------|
+| --------- | -------------------------------------------------------------------------------- | ------------- | ----- | ---- |
 | ShowToAll | Whether to show command response to everyone or just the player that executed it | false         | false | true |
 
 ## Nextmap
 Players can type `nextmap` to see which map is going to be played next
 
 | Config    | Description                                                                      | Default Value | Min   | Max  |
-|-----------|----------------------------------------------------------------------------------|---------------|-------|------|
+| --------- | -------------------------------------------------------------------------------- | ------------- | ----- | ---- |
 | ShowToAll | Whether to show command response to everyone or just the player that executed it | false         | false | true |
 
 
@@ -122,5 +124,3 @@ de_dust2
 # Limitations
  - Plugins is still under development and a lot of functionality is still going to be added in the future.
  - I usually test the new versions in an empty server with bots so it is hard to tell if everything is actually working, feel free to post any issues here or in the discord thread so I can fix them https://discord.com/channels/1160907911501991946/1176224458751627514
-
-
