@@ -12,7 +12,7 @@ namespace cs2_rockthevote
         [ConsoleCommand("timeleft", "Prints in the chat the timeleft in the current map")]
         public void OnTimeLeft(CCSPlayerController? player, CommandInfo? command)
         {
-            _timeLeft.CommandHandler(player!);
+            _timeLeft.CommandHandler(player);
         }
     }
 
@@ -35,13 +35,16 @@ namespace cs2_rockthevote
 
         }
 
-        public void CommandHandler(CCSPlayerController player)
+        public void CommandHandler(CCSPlayerController? player)
         {
             string text;
 
             if (_gameRules.WarmupRunning)
             {
-                player.PrintToChat(_localizer.LocalizeWithPrefix("general.validation.warmup"));
+                if(player is not null)
+                    player.PrintToChat(_localizer.LocalizeWithPrefix("general.validation.warmup"));
+                else
+                    Server.PrintToConsole(_localizer.LocalizeWithPrefix("general.validation.warmup"));
                 return;
             }
 
@@ -82,8 +85,10 @@ namespace cs2_rockthevote
 
             if (_config.ShowToAll)
                 Server.PrintToChatAll(text);
-            else
+            else if (player is not null)
                 player.PrintToChat(text);
+            else
+                Server.PrintToConsole(text);
         }
 
         public void OnConfigParsed(Config config)

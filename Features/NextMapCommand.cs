@@ -17,21 +17,20 @@ namespace cs2_rockthevote.Features
 
         public void CommandHandler(CCSPlayerController? player)
         {
-            if (player is not null)
+            string text;
+            if (_changeMapManager.NextMap is not null)
             {
-                string text;
-                if (_changeMapManager.NextMap is not null)
-                {
-                    text = _stringLocalizer.LocalizeWithPrefix("nextmap", _changeMapManager.NextMap);
-                }
-                else
-                    text = _stringLocalizer.LocalizeWithPrefix("nextmap.decided-by-vote");
-
-                if (_config.ShowToAll)
-                    Server.PrintToChatAll(text);
-                else
-                    player.PrintToChat(text);
+                text = _stringLocalizer.LocalizeWithPrefix("nextmap", _changeMapManager.NextMap);
             }
+            else
+                text = _stringLocalizer.LocalizeWithPrefix("nextmap.decided-by-vote");
+
+            if (_config.ShowToAll)
+                Server.PrintToChatAll(text);
+            else if (player is not null)
+                player.PrintToChat(text);
+            else
+                Server.PrintToConsole(text);
         }
 
         public void OnLoad(Plugin plugin)

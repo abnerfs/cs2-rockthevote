@@ -68,8 +68,11 @@ namespace cs2_rockthevote
             }
         }
 
-        public void CommandHandler(CCSPlayerController player, string map)
+        public void CommandHandler(CCSPlayerController? player, string map)
         {
+            if (player is null)
+                return;
+
             map = map.ToLower().Trim();
             if (_pluginState.DisableCommands || !_config.NominationEnabled)
             {
