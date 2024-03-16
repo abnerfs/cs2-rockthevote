@@ -57,21 +57,23 @@ namespace cs2_rockthevote
                 return;
             }
 
-            if (!_config.EnabledInWarmup && _gameRules.WarmupRunning)
+            if (_gameRules.WarmupRunning)
             {
-                player.PrintToChat(_localizer.LocalizeWithPrefix("general.validation.warmup"));
+                if (!_config.EnabledInWarmup)
+                {
+                    player.PrintToChat(_localizer.LocalizeWithPrefix("general.validation.warmup"));
+                    return;
+                }
+            }
+            else if (_config.MinRounds > 0 && _config.MinRounds > _gameRules.TotalRoundsPlayed)
+            {
+                player!.PrintToChat(_localizer.LocalizeWithPrefix("general.validation.minimum-rounds", _config.MinRounds));
                 return;
             }
 
             if (ServerManager.ValidPlayerCount() < _config!.MinPlayers)
             {
                 player.PrintToChat(_localizer.LocalizeWithPrefix("general.validation.minimum-players", _config!.MinPlayers));
-                return;
-            }
-
-            if (_config.MinRounds > 0 && _config.MinRounds > _gameRules.TotalRoundsPlayed)
-            {
-                player!.PrintToChat(_localizer.LocalizeWithPrefix("general.validation.minimum-rounds", _config.MinRounds));
                 return;
             }
 

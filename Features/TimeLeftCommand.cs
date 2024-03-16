@@ -41,7 +41,7 @@ namespace cs2_rockthevote
 
             if (_gameRules.WarmupRunning)
             {
-                if(player is not null)
+                if (player is not null)
                     player.PrintToChat(_localizer.LocalizeWithPrefix("general.validation.warmup"));
                 else
                     Server.PrintToConsole(_localizer.LocalizeWithPrefix("general.validation.warmup"));

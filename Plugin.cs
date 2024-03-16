@@ -21,7 +21,7 @@ namespace cs2_rockthevote
     public partial class Plugin : BasePlugin, IPluginConfig<Config>
     {
         public override string ModuleName => "RockTheVote";
-        public override string ModuleVersion => "1.7.6";
+        public override string ModuleVersion => "1.7.7";
         public override string ModuleAuthor => "abnerfs";
         public override string ModuleDescription => "General purpose map voting plugin";
 
@@ -67,7 +67,7 @@ namespace cs2_rockthevote
         public HookResult OnChat(EventPlayerChat @event, GameEventInfo info)
         {
             var player = Utilities.GetPlayerFromUserid(@event.Userid);
-            if(player is not null)
+            if (player is not null)
             {
                 var text = @event.Text.Trim().ToLower();
                 if (text == "rtv")
