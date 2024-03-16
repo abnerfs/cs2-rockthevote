@@ -18,6 +18,7 @@
   "general.invalid-map": "Érvénytelen pálya",
   "nominate.nominated": "{green}{0}{default} ezt a pályát ajánlotta: {green}{1}{default}, jelenleg {2} szavazata van",
   "nominate.already-nominated": "Már ajánlottad ezt a pályát: {green}{0}{default}, jelenleg {1} szavazata van",
+  "nominate.multiple-maps-containing-name": "Több térkép van a megadott névvel, légy pontosabb!",
   "general.validation.current-map": "A jelenlegi pályát nem tudod kiválasztani",
   "general.validation.minimum-rounds": "Ehhez a parancshoz a minimum körök száma: {0}",
   "general.validation.warmup": "Bemelegítés alatt nem használható ez a parancs.",

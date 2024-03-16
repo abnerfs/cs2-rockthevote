@@ -18,6 +18,7 @@
   "general.invalid-map": "Неприпустима карта",
   "nominate.nominated": "Гравець {green}{0}{default} висунув кандидатуру карти {green}{1}{default}, зараз у неї {2} голосів",
   "nominate.already-nominated": "Ви вже висунули кандидатуру карти {green}{0}{default}, зараз у неї {1} голос(ів)",
+  "nominate.multiple-maps-containing-name": "Є більше однієї карти з вказаною назвою, будьте точніше!",
   "general.validation.current-map": "Ви не можете обирати поточну карту",
   "general.validation.minimum-rounds": "Мінімум раундів для використання цієї команди - {0}",
   "general.validation.warmup": "Команда вимкнена під час розігріву",

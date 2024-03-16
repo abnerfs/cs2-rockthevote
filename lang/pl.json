@@ -18,6 +18,7 @@
   "general.invalid-map": "Nieprawidłowa mapa",
   "nominate.nominated": "Gracz {green}{0}{default} nominował mapę {green}{1}{default}, obecnie ma {2} głos(y)",
   "nominate.already-nominated": "Już nominowałeś mapę {green}{0}{default}, ma {1} głos(y)",
+  "nominate.multiple-maps-containing-name": "Istnieje więcej niż jedna mapa o podanej nazwie, proszę być bardziej konkretan!",
   "general.validation.current-map": "Nie możesz wybrać obecnej mapy",
   "general.validation.minimum-rounds": "Minimalna liczba rund do użycia tej komendy to {0}",
   "general.validation.warmup": "Komenda wyłączona podczas rozgrzewki.",
