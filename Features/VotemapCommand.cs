@@ -156,8 +156,8 @@ namespace cs2_rockthevote
         public void PlayerDisconnected(CCSPlayerController player)
         {
             int userId = player.UserId!.Value;
-            foreach (var map in VotedMaps.Select(x => x.Key))
-                map.Remove(userId);
+            foreach (var map in VotedMaps)
+                map.Value.RemoveVote(userId);
         }
     }
 }
