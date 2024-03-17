@@ -31,8 +31,14 @@ namespace cs2_rockthevote
 
         bool CheckMaxRounds()
         {
-            //Server.PrintToChatAll($"Remaining rounds {_maxRounds.RemainingRounds}, Remaining wins {_maxRounds.RemainingWins}");
-            return !_maxRounds.UnlimitedRounds && (_maxRounds.RemainingRounds <= 2 || _maxRounds.RemainingWins <= _config.TriggerRoundsBeforEnd);
+            Server.PrintToChatAll($"Remaining rounds {_maxRounds.RemainingRounds}, remaining wins: {_maxRounds.RemainingWins}, triggerBefore {_config.TriggerRoundsBeforEnd}");
+            if (_maxRounds.UnlimitedRounds)
+                return false;
+
+            if (_maxRounds.RemainingRounds <= _config.TriggerRoundsBeforEnd)
+                return true;
+
+            return _maxRounds.CanClinch && _maxRounds.RemainingWins <= _config.TriggerRoundsBeforEnd;
         }
 
 

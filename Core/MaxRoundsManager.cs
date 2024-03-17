@@ -13,9 +13,9 @@ namespace cs2_rockthevote
 
         private GameRules _gameRules;
         private ConVar? _maxRounds;
-        private ConVar? _halfTime;
+        private ConVar? _canClinch;
         private int MaxRoundsValue => _maxRounds?.GetPrimitiveValue<int>() ?? 0;
-        private bool HalfTime => _halfTime?.GetPrimitiveValue<bool>() ?? true;
+        public bool CanClinch => _canClinch?.GetPrimitiveValue<bool>() ?? true;
 
         public bool UnlimitedRounds => MaxRoundsValue <= 0;
         private bool _lastBeforeHalf = false;
@@ -46,7 +46,7 @@ namespace cs2_rockthevote
                 if (MaxRoundsValue <= 0)
                     return 0;
 
-                if (!HalfTime)
+                if (!CanClinch)
                     return MaxRoundsValue;
 
                 return ((int)Math.Floor(MaxRoundsValue / 2M)) + 1;
@@ -63,7 +63,7 @@ namespace cs2_rockthevote
         void LoadCvar()
         {
             _maxRounds = ConVar.Find("mp_maxrounds");
-            _halfTime = ConVar.Find("mp_halftime");
+            _canClinch = ConVar.Find("mp_match_can_clinch");
         }
 
 

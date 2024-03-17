@@ -9,7 +9,7 @@ namespace cs2_rockthevote.Core
 
         private ConVar? _timeLimit;
 
-        private decimal TimeLimitValue => (decimal)_timeLimit!.GetPrimitiveValue<float>() * 60M;
+        private decimal TimeLimitValue => (decimal)(_timeLimit?.GetPrimitiveValue<float>() ?? 0F) * 60M;
 
         public bool UnlimitedTime => TimeLimitValue <= 0;
 

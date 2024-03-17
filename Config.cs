@@ -36,6 +36,7 @@ namespace cs2_rockthevote
         public bool HideHudAfterVote { get; set; } = false;
         public int TriggerSecondsBeforeEnd { get; set; } = 120;
         public int TriggerRoundsBeforEnd { get; set; } = 2;
+        public float DelayToChangeInTheEnd { get; set; } = 6F;
     }
 
     public class RtvConfig : ICommandConfig, IVoteConfig, IEndOfMapConfig

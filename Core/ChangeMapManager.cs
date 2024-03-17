@@ -35,7 +35,7 @@ namespace cs2_rockthevote
         private bool _mapEnd = false;
 
         private Map[] _maps = new Map[0];
-
+        private Config _config;
 
         public ChangeMapManager(StringLocalizer localizer, PluginState pluginState, MapLister mapLister)
         {
@@ -92,6 +92,11 @@ namespace cs2_rockthevote
             return true;
         }
 
+        public void OnConfigParsed(Config config)
+        {
+            _config = config;
+        }
+
         public void OnLoad(Plugin plugin)
         {
             _plugin = plugin;
@@ -99,7 +104,11 @@ namespace cs2_rockthevote
             {
                 if (_pluginState.MapChangeScheduled)
                 {
-                    _plugin.AddTimer(3.0F, () =>
+                    var delay = _config.EndOfMapVote.DelayToChangeInTheEnd - 3.0F; //subtracting the delay that is going to be applied by ChangeNextMap function anyway
+                    if (delay < 0)
+                        delay = 0;
+
+                    _plugin.AddTimer(delay, () =>
                     {
                         ChangeNextMap(true);
                     });
