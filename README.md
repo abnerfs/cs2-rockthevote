@@ -120,7 +120,8 @@ Players can type `nextmap` to see which map is going to be played next
 
   
 # Adding workshop maps
-In order to add workshop maps you need to know it's id and add as following in the maplist.txt file <mapname>:<workshop-id>
+- If you are not hosting a collection in order to add workshop maps you need to know it's id and add as following in the maplist.txt file: `<mapname>:<workshop-id>`.
+- If you are already hosting a collection and can change to workshop maps using the command `ds_workshop_changelevel <map-name>` you don't need the id, just put the actual map name and it will work.
 
 ```
 de_thera:3121217565
