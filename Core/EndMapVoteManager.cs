@@ -2,6 +2,7 @@
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Menu;
 using CounterStrikeSharp.API.Modules.Timers;
+using cs2_rockthevote.Core;
 using System.Data;
 using System.Text;
 using static CounterStrikeSharp.API.Core.Listeners;
@@ -26,13 +27,14 @@ namespace cs2_rockthevote
     public class EndMapVoteManager : IPluginDependency<Plugin, Config>
     {
         const int MAX_OPTIONS_HUD_MENU = 6;
-        public EndMapVoteManager(MapLister mapLister, ChangeMapManager changeMapManager, NominationCommand nominationManager, StringLocalizer localizer, PluginState pluginState)
+        public EndMapVoteManager(MapLister mapLister, ChangeMapManager changeMapManager, NominationCommand nominationManager, StringLocalizer localizer, PluginState pluginState, MapCooldown mapCooldown)
         {
             _mapLister = mapLister;
             _changeMapManager = changeMapManager;
             _nominationManager = nominationManager;
             _localizer = localizer;
             _pluginState = pluginState;
+            _mapCooldown = mapCooldown;
         }
 
         private readonly MapLister _mapLister;
@@ -40,6 +42,7 @@ namespace cs2_rockthevote
         private readonly NominationCommand _nominationManager;
         private readonly StringLocalizer _localizer;
         private PluginState _pluginState;
+        private MapCooldown _mapCooldown;
         private Timer? Timer;
 
         Dictionary<string, int> Votes = new();
@@ -182,7 +185,7 @@ namespace cs2_rockthevote
             if (config.HudMenu && mapsToShow > MAX_OPTIONS_HUD_MENU)
                 mapsToShow = MAX_OPTIONS_HUD_MENU;
 
-            var mapsScrambled = Shuffle(new Random(), _mapLister.Maps!.Select(x => x.Name).Where(x => x != Server.MapName).ToList());
+            var mapsScrambled = Shuffle(new Random(), _mapLister.Maps!.Select(x => x.Name).Where(x => x != Server.MapName && !_mapCooldown.IsMapInCooldown(x)).ToList());
             mapsEllected = _nominationManager.NominationWinners().Concat(mapsScrambled).Distinct().ToList();
 
             _canVote = ServerManager.ValidPlayerCount();

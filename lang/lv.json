@@ -36,5 +36,6 @@
   "emv.hud.hud-timer": "Balso par nākošo karti: {0}s",
   "emv.hud.finished": "Balsošana beidzās, nākošā karte: {0}",
   "nextmap": "Nākošā karte būs {green}{0}",
-  "nextmap.decided-by-vote": "Nākošā karte tiks izvēlētā pēc balsošanas"
+  "nextmap.decided-by-vote": "Nākošā karte tiks izvēlētā pēc balsošanas",
+  "general.validation.map-played-recently": "A térkép nemrégiben játszották"
 }

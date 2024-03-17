@@ -36,5 +36,6 @@
   "emv.hud.hud-timer": "Sonraki haritaya oy verin: {0}",
   "emv.hud.finished": "Oylama tamamlandı, sonraki harita: {0}",
   "nextmap": "Sonraki harita {green}{0} olacak",
-  "nextmap.decided-by-vote": "Sonraki haritaya oylamayla karar verilecek"
+  "nextmap.decided-by-vote": "Sonraki haritaya oylamayla karar verilecek",
+  "general.validation.map-played-recently": "Harita yakın zamanda oynandı"
 }

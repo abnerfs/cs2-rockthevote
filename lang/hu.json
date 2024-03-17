@@ -36,5 +36,6 @@
   "emv.hud.hud-timer": "Szavazz a következő pályára: {0}mp",
   "emv.hud.finished": "A szavazás végetért, a köv. pálya: {0}",
   "nextmap": "A köv. pálya ez lesz: {green}{0}",
-  "nextmap.decided-by-vote": "A következő pálya majd az automatikus szavazás útján fog eldőlni"
+  "nextmap.decided-by-vote": "A következő pálya majd az automatikus szavazás útján fog eldőlni",
+  "general.validation.map-played-recently": "A térkép nemrégiben játszották"
 }

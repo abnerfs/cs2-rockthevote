@@ -52,6 +52,11 @@ Feeling like paying me a ☕? Go ahead and donate:
 - Changes in the config file will require you to reload the plugin or restart the server (change the map won't work).
 - Maps that will be used in RTV/nominate/votemap/end of map vote are located in addons/counterstrikesharp/configs/plugins/RockTheVote/maplist.txt
 
+## General config
+| Config         | Description                                                                      | Default Value | Min | Max |
+| -------------- | -------------------------------------------------------------------------------- | ------------- | --- | --- |
+| MapsInCoolDown | Number of maps that can't be used in vote because they have been played recently | 3             | 0   |     |
+
 ## RockTheVote
 Players can type rtv to request the map to be changed, once a number of votes is reached (by default 60% of players in the server) a vote will start for the next map, this vote lasts up to 30 seconds (hardcoded for now), in the end server changes to the winner map.
 

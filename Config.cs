@@ -1,4 +1,5 @@
 ﻿using CounterStrikeSharp.API.Core;
+using System.Text.Json.Serialization;
 
 namespace cs2_rockthevote
 {
@@ -60,6 +61,7 @@ namespace cs2_rockthevote
         public bool EnabledInWarmup { get; set; } = true;
         public int MinPlayers { get; set; } = 0;
         public int MinRounds { get; set; } = 0;
+        public bool HudMenu { get; set; } = false;
     }
 
     public class TimeleftConfig
@@ -73,6 +75,11 @@ namespace cs2_rockthevote
     }
 
 
+    public class MapCoolDownConfig
+    {
+        
+    }
+
     public class Config : IBasePluginConfig
     {
         public int Version { get; set; } = 9;
@@ -81,5 +88,6 @@ namespace cs2_rockthevote
         public EndOfMapConfig EndOfMapVote { get; set; } = new();
         public TimeleftConfig Timeleft { get; set; } = new();
         public NextmapConfig Nextmap { get; set; } = new();
+        public ushort MapsInCoolDown { get; set; } = 3;
     }
 }

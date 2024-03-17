@@ -1,8 +1,10 @@
 ﻿using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Core.Attributes.Registration;
+using CounterStrikeSharp.API.Core.Logging;
 using CounterStrikeSharp.API.Modules.Commands;
 using CounterStrikeSharp.API.Modules.Menu;
+using cs2_rockthevote.Core;
 using Microsoft.Extensions.Localization;
 
 namespace cs2_rockthevote
@@ -29,21 +31,25 @@ namespace cs2_rockthevote
     {
         Dictionary<string, AsyncVoteManager> VotedMaps = new();
         ChatMenu? votemapMenu = null;
+        CenterHtmlMenu? votemapMenuHud = null;
         private VotemapConfig _config = new();
         private GameRules _gamerules;
         private StringLocalizer _localizer;
         private ChangeMapManager _changeMapManager;
         private PluginState _pluginState;
+        private MapCooldown _mapCooldown;
         private MapLister _mapLister;
+        private Plugin? _plugin;
 
-        public VotemapCommand(MapLister mapLister, GameRules gamerules, IStringLocalizer stringLocalizer, ChangeMapManager changeMapManager, PluginState pluginState)
+        public VotemapCommand(MapLister mapLister, GameRules gamerules, IStringLocalizer stringLocalizer, ChangeMapManager changeMapManager, PluginState pluginState, MapCooldown mapCooldown)
         {
             _mapLister = mapLister;
-            _mapLister.EventMapsLoaded += OnMapsLoaded;
             _gamerules = gamerules;
             _localizer = new StringLocalizer(stringLocalizer, "votemap.prefix");
             _changeMapManager = changeMapManager;
             _pluginState = pluginState;
+            _mapCooldown = mapCooldown;
+            _mapCooldown.EventCooldownRefreshed += OnMapsLoaded;
         }
 
         public void OnMapStart(string map)
@@ -60,12 +66,18 @@ namespace cs2_rockthevote
         public void OnMapsLoaded(object? sender, Map[] maps)
         {
             votemapMenu = new("Votemap");
+            votemapMenuHud = new("VoteMap");
             foreach (var map in _mapLister.Maps!.Where(x => x.Name != Server.MapName))
             {
                 votemapMenu.AddMenuOption(map.Name, (CCSPlayerController player, ChatMenuOption option) =>
                 {
                     AddVote(player, option.Text);
-                });
+                }, _mapCooldown.IsMapInCooldown(map.Name));
+
+                votemapMenuHud.AddMenuOption(map.Name, (CCSPlayerController player, ChatMenuOption option) =>
+                {
+                    AddVote(player, option.Text);
+                }, _mapCooldown.IsMapInCooldown(map.Name));
             }
         }
 
@@ -113,7 +125,10 @@ namespace cs2_rockthevote
 
         public void OpenVotemapMenu(CCSPlayerController player)
         {
-            MenuManager.OpenChatMenu(player!, votemapMenu!);
+            if (_config.HudMenu)
+                MenuManager.OpenCenterHtmlMenu(_plugin, player, votemapMenuHud!);
+            else
+                MenuManager.OpenChatMenu(player, votemapMenu!);
         }
 
         void AddVote(CCSPlayerController player, string map)
@@ -121,6 +136,12 @@ namespace cs2_rockthevote
             if (map == Server.MapName)
             {
                 player!.PrintToChat(_localizer.LocalizeWithPrefix("general.validation.current-map"));
+                return;
+            }
+
+            if (_mapCooldown.IsMapInCooldown(map))
+            {
+                player!.PrintToChat(_localizer.LocalizeWithPrefix("general.validation.map-played-recently"));
                 return;
             }
 
@@ -163,6 +184,11 @@ namespace cs2_rockthevote
             int userId = player.UserId!.Value;
             foreach (var map in VotedMaps)
                 map.Value.RemoveVote(userId);
+        }
+
+        public void OnLoad(Plugin plugin)
+        {
+            _plugin = plugin;
         }
     }
 }

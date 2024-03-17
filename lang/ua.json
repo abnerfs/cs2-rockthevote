@@ -36,5 +36,6 @@
   "emv.hud.hud-timer": "Голосуйте за наступну карту: {0}с",
   "emv.hud.finished": "Голосування завершено, наступна карта: {0}",
   "nextmap": "Наступна карта буде {green}{0}",
-  "nextmap.decided-by-vote": "Наступна карта буде визначена голосуванням"
+  "nextmap.decided-by-vote": "Наступна карта буде визначена голосуванням",
+  "general.validation.map-played-recently": "Карта була недавно зіграна"
 }

@@ -36,5 +36,6 @@
   "emv.hud.hud-timer": "投票下一张地图: {0}s",
   "emv.hud.finished": "投票完成，下一张地图为: {0}",
   "nextmap": "下一张地图为 {green}{0}",
-  "nextmap.decided-by-vote": "下一张地图将由投票决定"
+  "nextmap.decided-by-vote": "下一张地图将由投票决定",
+  "general.validation.map-played-recently": "地图最近已经被玩过"
 }

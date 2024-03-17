@@ -36,5 +36,6 @@
   "emv.hud.hud-timer": "Vote para o próximo mapa: {0}s",
   "emv.hud.finished": "Votação encerrada, próximo mapa: {0}",
   "nextmap": "O próximo mapa será {green}{0}",
-  "nextmap.decided-by-vote": "O próximo mapa será decidido pelo voto"
+  "nextmap.decided-by-vote": "O próximo mapa será decidido pelo voto",
+  "general.validation.map-played-recently":  "O mapa foi jogado recentemente"
 }

@@ -4,6 +4,7 @@ using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Core.Attributes.Registration;
 using CounterStrikeSharp.API.Modules.Commands;
 using CounterStrikeSharp.API.Modules.Menu;
+using cs2_rockthevote.Core;
 
 namespace cs2_rockthevote
 {
@@ -33,15 +34,17 @@ namespace cs2_rockthevote
         private GameRules _gamerules;
         private StringLocalizer _localizer;
         private PluginState _pluginState;
+        private MapCooldown _mapCooldown;
         private MapLister _mapLister;
 
-        public NominationCommand(MapLister mapLister, GameRules gamerules, StringLocalizer localizer, PluginState pluginState)
+        public NominationCommand(MapLister mapLister, GameRules gamerules, StringLocalizer localizer, PluginState pluginState, MapCooldown mapCooldown)
         {
             _mapLister = mapLister;
-            _mapLister.EventMapsLoaded += OnMapsLoaded;
             _gamerules = gamerules;
             _localizer = localizer;
             _pluginState = pluginState;
+            _mapCooldown = mapCooldown;
+            _mapCooldown.EventCooldownRefreshed += OnMapsLoaded;
         }
 
 
@@ -55,7 +58,6 @@ namespace cs2_rockthevote
             _config = config.Rtv;
         }
 
-
         public void OnMapsLoaded(object? sender, Map[] maps)
         {
             nominationMenu = new("Nomination");
@@ -64,7 +66,7 @@ namespace cs2_rockthevote
                 nominationMenu.AddMenuOption(map.Name, (CCSPlayerController player, ChatMenuOption option) =>
                 {
                     Nominate(player, option.Text);
-                });
+                }, _mapCooldown.IsMapInCooldown(map.Name));
             }
         }
 
@@ -120,6 +122,12 @@ namespace cs2_rockthevote
             if (map == Server.MapName)
             {
                 player!.PrintToChat(_localizer.LocalizeWithPrefix("general.validation.current-map"));
+                return;
+            }
+
+            if (_mapCooldown.IsMapInCooldown(map))
+            {
+                player!.PrintToChat(_localizer.LocalizeWithPrefix("general.validation.map-played-recently"));
                 return;
             }
 
