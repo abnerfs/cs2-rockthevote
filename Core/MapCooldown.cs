@@ -15,17 +15,20 @@ namespace cs2_rockthevote.Core
             mapLister.EventMapsLoaded += (e, maps) =>
             {
                 var map = Server.MapName;
-                if (InCoolDown == 0)
+                if(map is not null)
                 {
-                    mapsOnCoolDown.Clear();
-                    return;
+                    if (InCoolDown == 0)
+                    {
+                        mapsOnCoolDown.Clear();
+                        return;
+                    }
+
+                    if (mapsOnCoolDown.Count > InCoolDown)
+                        mapsOnCoolDown.RemoveAt(0);
+
+                    mapsOnCoolDown.Add(map.Trim().ToLower());
+                    EventCooldownRefreshed?.Invoke(this, maps);
                 }
-
-                mapsOnCoolDown.Add(map.Trim().ToLower());
-                if (mapsOnCoolDown.Count > InCoolDown)
-                    mapsOnCoolDown.RemoveAt(0);
-
-                EventCooldownRefreshed?.Invoke(this, maps);
             };
         }
 

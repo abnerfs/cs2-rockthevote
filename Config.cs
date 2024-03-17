@@ -76,11 +76,6 @@ namespace cs2_rockthevote
     }
 
 
-    public class MapCoolDownConfig
-    {
-        
-    }
-
     public class Config : IBasePluginConfig
     {
         public int Version { get; set; } = 9;
