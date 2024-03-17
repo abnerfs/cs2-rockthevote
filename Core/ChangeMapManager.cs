@@ -59,7 +59,7 @@ namespace cs2_rockthevote
             _mapEnd = mapEnd;
         }
 
-        public void OnMapStart()
+        public void OnMapStart(string _map)
         {
             NextMap = null;
             _prefix = DEFAULT_PREFIX;
