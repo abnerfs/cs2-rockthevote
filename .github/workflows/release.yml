@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        dotnet-version: [ '7.0.x' ]
+        dotnet-version: [ '8.0.x' ]
 
     steps:
     - uses: actions/checkout@v4
@@ -29,7 +29,7 @@ jobs:
       run: dotnet build  
 
     - name: Create zip
-      run: cd ${debugPath} && mv net7.0 $dllName && zip -r ${dllName}.zip ${dllName}
+      run: cd ${debugPath} && mv net8.0 $dllName && zip -r ${dllName}.zip ${dllName}
 
     - name: Create Release
       id: create_release
