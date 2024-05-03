@@ -21,7 +21,7 @@ namespace cs2_rockthevote
     public partial class Plugin : BasePlugin, IPluginConfig<Config>
     {
         public override string ModuleName => "RockTheVote";
-        public override string ModuleVersion => "1.8.5";
+        public override string ModuleVersion => "1.8.6";
         public override string ModuleAuthor => "abnerfs";
         public override string ModuleDescription => "https://github.com/abnerfs/cs2-rockthevote";
 
