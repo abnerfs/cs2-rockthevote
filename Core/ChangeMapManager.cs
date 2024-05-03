@@ -10,7 +10,7 @@ namespace cs2_rockthevote
         [GameEventHandler(HookMode.Post)]
         public HookResult OnRoundEndMapChanger(EventRoundEnd @event, GameEventInfo info)
         {
-            _changeMapManager.ChangeNextMap();
+            _changeMapManager.ChangeNextMap(mapEnd: true);
             return HookResult.Continue;
         }
 
