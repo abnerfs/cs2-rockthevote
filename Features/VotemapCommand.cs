@@ -5,6 +5,8 @@ using CounterStrikeSharp.API.Core.Logging;
 using CounterStrikeSharp.API.Modules.Commands;
 using CounterStrikeSharp.API.Modules.Menu;
 using cs2_rockthevote.Core;
+using cs2_rockthevote.Translations.Phrases;
+using cs2_rockthevote.Translations;
 using Microsoft.Extensions.Localization;
 
 namespace cs2_rockthevote
@@ -40,8 +42,10 @@ namespace cs2_rockthevote
         private MapCooldown _mapCooldown;
         private MapLister _mapLister;
         private Plugin? _plugin;
+        private TranslationManager _translations;
+        private Validations _validations;
 
-        public VotemapCommand(MapLister mapLister, GameRules gamerules, IStringLocalizer stringLocalizer, ChangeMapManager changeMapManager, PluginState pluginState, MapCooldown mapCooldown)
+        public VotemapCommand(MapLister mapLister, ChangeMapManager changeMapManager, MapCooldown mapCooldown, TranslationManager translations, Validations validations)
         {
             _mapLister = mapLister;
             _gamerules = gamerules;
@@ -50,6 +54,8 @@ namespace cs2_rockthevote
             _pluginState = pluginState;
             _mapCooldown = mapCooldown;
             _mapCooldown.EventCooldownRefreshed += OnMapsLoaded;
+            _translations = translations;
+            _validations = validations;
         }
 
         public void OnMapStart(string map)
@@ -86,33 +92,15 @@ namespace cs2_rockthevote
             if (player is null)
                 return;
 
+            List<Func<IPhrase?>> validations = [
+                () => _validations.CommandDisabled(PrefixEnum.VoteMap, _config.Enabled),
+                () => _validations.WarmupRunning(PrefixEnum.VoteMap, _config.EnabledInWarmup),
+                () => _validations.MinRounds(PrefixEnum.VoteMap, _config.MinRounds, _config.EnabledInWarmup),
+                () => _validations.MinPlayers(PrefixEnum.VoteMap, _config.MinPlayers),
+            ];
+
+            _validations.ExecuteValidations(validations);
             map = map.ToLower().Trim();
-            if (_pluginState.DisableCommands || !_config.Enabled)
-            {
-                player.PrintToChat(_localizer.LocalizeWithPrefix("general.validation.disabled"));
-                return;
-            }
-
-            if (_gamerules.WarmupRunning)
-            {
-                if (!_config.EnabledInWarmup)
-                {
-                    player.PrintToChat(_localizer.LocalizeWithPrefix("general.validation.warmup"));
-                    return;
-                }
-            }
-            else if (_config.MinRounds > 0 && _config.MinRounds > _gamerules.TotalRoundsPlayed)
-            {
-                player!.PrintToChat(_localizer.LocalizeWithPrefix("general.validation.minimum-rounds", _config.MinRounds));
-                return;
-            }
-
-            if (ServerManager.ValidPlayerCount() < _config!.MinPlayers)
-            {
-                player.PrintToChat(_localizer.LocalizeWithPrefix("general.validation.minimum-players", _config!.MinPlayers));
-                return;
-            }
-
             if (string.IsNullOrEmpty(map))
             {
                 OpenVotemapMenu(player!);
@@ -133,12 +121,6 @@ namespace cs2_rockthevote
 
         void AddVote(CCSPlayerController player, string map)
         {
-            if (map == Server.MapName)
-            {
-                player!.PrintToChat(_localizer.LocalizeWithPrefix("general.validation.current-map"));
-                return;
-            }
-
             if (_mapCooldown.IsMapInCooldown(map))
             {
                 player!.PrintToChat(_localizer.LocalizeWithPrefix("general.validation.map-played-recently"));

@@ -3,9 +3,9 @@ using CounterStrikeSharp.API.Core;
 
 namespace cs2_rockthevote
 {
-    public static class ServerManager
+    public class ServerManager: IPluginDependency<Plugin, Config>
     {
-        public static CCSPlayerController[] ValidPlayers(bool considerBots = false)
+        public CCSPlayerController[] ValidPlayers(bool considerBots = false)
         {
             //considerBots = true;
             return Utilities.GetPlayers()
@@ -15,7 +15,7 @@ namespace cs2_rockthevote
                 .ToArray();
         }
 
-        public static int ValidPlayerCount(bool considerBots = false)
+        public int ValidPlayerCount(bool considerBots = false)
         {
             return ValidPlayers(considerBots).Length;
         }
