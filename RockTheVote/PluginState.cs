@@ -2,7 +2,7 @@
 {
     public class PluginState : IPluginDependency<Plugin, Config>
     {
-        public bool MapChangeScheduled { get; set; }
+        public bool NextmapSet { get; set; }
         public bool EofVoteHappening { get; set; }
 
         public PluginState()
@@ -10,11 +10,11 @@
 
         }
 
-        public bool DisableCommands => MapChangeScheduled || EofVoteHappening;
+        public bool DisableCommands => NextmapSet || EofVoteHappening;
 
         public void OnMapStart(string map)
         {
-            MapChangeScheduled = false;
+            NextmapSet = false;
             EofVoteHappening = false;
         }
     }

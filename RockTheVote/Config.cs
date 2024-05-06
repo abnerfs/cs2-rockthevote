@@ -1,5 +1,4 @@
 ﻿using CounterStrikeSharp.API.Core;
-using System.Text.Json.Serialization;
 
 namespace cs2_rockthevote
 {
@@ -13,14 +12,12 @@ namespace cs2_rockthevote
     public interface IVoteConfig
     {
         public int VotePercentage { get; set; }
-        public bool ChangeMapImmediatly { get; set; }
     }
 
 
     public interface IEndOfMapConfig
     {
         public int MapsToShow { get; set; }
-        public bool ChangeMapImmediatly { get; set; }
         public int VoteDuration { get; set; }
         public bool HudMenu { get; set; }
         public bool HideHudAfterVote { get; set; }
@@ -31,7 +28,6 @@ namespace cs2_rockthevote
         public bool Enabled { get; set; } = true;
         public int MapsToShow { get; set; } = 6;
         public bool HudMenu { get; set; } = true;
-        public bool ChangeMapImmediatly { get; set; } = false;
         public int VoteDuration { get; set; } = 30;
         public bool HideHudAfterVote { get; set; } = false;
         public int TriggerSecondsBeforeEnd { get; set; } = 120;
@@ -46,7 +42,6 @@ namespace cs2_rockthevote
         public bool NominationEnabled { get; set; } = true;
         public int MinPlayers { get; set; } = 0;
         public int MinRounds { get; set; } = 0;
-        public bool ChangeMapImmediatly { get; set; } = true;
         public bool HideHudAfterVote { get; set; } = false;
         public int MapsToShow { get; set; } = 6;
         public int VoteDuration { get; set; } = 30;
@@ -58,7 +53,6 @@ namespace cs2_rockthevote
     {
         public bool Enabled { get; set; } = true;
         public int VotePercentage { get; set; } = 60;
-        public bool ChangeMapImmediatly { get; set; } = true;
         public bool EnabledInWarmup { get; set; } = true;
         public int MinPlayers { get; set; } = 0;
         public int MinRounds { get; set; } = 0;

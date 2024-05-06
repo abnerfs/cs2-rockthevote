@@ -9,9 +9,10 @@
         public int VoteCount => votes.Count;
         public int RequiredVotes => _voteValidator.RequiredVotes;
 
-        public AsyncVoteManager(IVoteConfig config)
+        public AsyncVoteManager(IVoteConfig config, ServerManager serverManager)
         {
-            _voteValidator = new AsyncVoteValidator(config);
+            _voteValidator = new AsyncVoteValidator(config, serverManager);
+            _serverManager = serverManager;
         }
 
         public void OnMapStart(string _mapName)
@@ -21,6 +22,7 @@
         }
 
         private readonly AsyncVoteValidator _voteValidator;
+        private ServerManager _serverManager;
 
         public bool VotesAlreadyReached { get; set; } = false;
 

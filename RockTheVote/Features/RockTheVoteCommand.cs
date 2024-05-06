@@ -10,15 +10,17 @@ namespace cs2_rockthevote
         private EndMapVoteManager _endmapVoteManager;
         private TranslationManager _translation;
         private Validations _validations;
+        private ServerManager _serverManager;
         private RtvConfig _config = new();
         private AsyncVoteManager? _voteManager;
         public bool VotesAlreadyReached => _voteManager!.VotesAlreadyReached;
 
-        public RockTheVoteCommand(EndMapVoteManager endmapVoteManager, TranslationManager translation, Validations validations)
+        public RockTheVoteCommand(EndMapVoteManager endmapVoteManager, TranslationManager translation, Validations validations, ServerManager serverManager)
         {
             _endmapVoteManager = endmapVoteManager;
             _translation = translation;
             _validations = validations;
+            _serverManager = serverManager;
         }
 
         public void OnMapStart(string map)
@@ -54,7 +56,7 @@ namespace cs2_rockthevote
                 case VoteResultEnum.VotesReached:
                     _translation.PrintToAll(new RockedTheVote
                     {
-                        Player = player,
+                        PlayerName = player.PlayerName,
                         VoteCount = result.VoteCount,
                         RequiredVotes = result.RequiredVotes
                     });
@@ -62,7 +64,7 @@ namespace cs2_rockthevote
                     if (result.Result == VoteResultEnum.VotesReached)
                     {
                         _translation.PrintToAll(new VotesReached());
-                        _endmapVoteManager.StartVote(_config);
+                        _endmapVoteManager.StartVote(_config, true);
                     }
                     break;
 
@@ -89,7 +91,7 @@ namespace cs2_rockthevote
         public void OnConfigParsed(Config config)
         {
             _config = config.Rtv;
-            _voteManager = new AsyncVoteManager(_config);
+            _voteManager = new AsyncVoteManager(_config, _serverManager);
         }
 
         public void OnLoad(Plugin plugin)

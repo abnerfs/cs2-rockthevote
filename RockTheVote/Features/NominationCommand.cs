@@ -28,7 +28,7 @@ namespace cs2_rockthevote
 
     public class NominationCommand : IPluginDependency<Plugin, Config>
     {
-        Dictionary<int, List<string>> Nominations = new();
+        Dictionary<int, List<Map>> Nominations = new();
         ChatMenu? nominationMenu = null;
         private RtvConfig _config = new();
         private GameRules _gamerules;
@@ -36,8 +36,9 @@ namespace cs2_rockthevote
         private PluginState _pluginState;
         private MapCooldown _mapCooldown;
         private MapLister _mapLister;
+        private ServerManager _serverManager;
 
-        public NominationCommand(MapLister mapLister, GameRules gamerules, StringLocalizer localizer, PluginState pluginState, MapCooldown mapCooldown)
+        public NominationCommand(MapLister mapLister, GameRules gamerules, StringLocalizer localizer, PluginState pluginState, MapCooldown mapCooldown, ServerManager serverManager)
         {
             _mapLister = mapLister;
             _gamerules = gamerules;
@@ -45,6 +46,7 @@ namespace cs2_rockthevote
             _pluginState = pluginState;
             _mapCooldown = mapCooldown;
             _mapCooldown.EventCooldownRefreshed += OnMapsLoaded;
+            _serverManager = serverManager;
         }
 
 
@@ -96,7 +98,7 @@ namespace cs2_rockthevote
                 return;
             }
 
-            if (ServerManager.ValidPlayerCount() < _config!.MinPlayers)
+            if (_serverManager.ValidPlayerCount() < _config!.MinPlayers)
             {
                 player.PrintToChat(_localizer.LocalizeWithPrefix("general.validation.minimum-players", _config!.MinPlayers));
                 return;
@@ -117,26 +119,21 @@ namespace cs2_rockthevote
             MenuManager.OpenChatMenu(player!, nominationMenu!);
         }
 
-        void Nominate(CCSPlayerController player, string map)
+        void Nominate(CCSPlayerController player, string mapStr)
         {
-            if (map == Server.MapName)
-            {
-                player!.PrintToChat(_localizer.LocalizeWithPrefix("general.validation.current-map"));
-                return;
-            }
-
-            if (_mapCooldown.IsMapInCooldown(map))
+            Map map = _mapLister.Maps!.First(x => x.Name.ToLower() == mapStr);
+            if (_mapCooldown.IsMapInCooldown(map.Name))
             {
                 player!.PrintToChat(_localizer.LocalizeWithPrefix("general.validation.map-played-recently"));
                 return;
             }
 
-            if (_mapLister.Maps!.Select(x => x.Name).FirstOrDefault(x => x.ToLower() == map) is null)
-            {
-                player!.PrintToChat(_localizer.LocalizeWithPrefix("general.invalid-map"));
-                return;
+            //if (_mapLister.Maps!.Select(x => x.Name).FirstOrDefault(x => x == map) is null)
+            //{
+            //    player!.PrintToChat(_localizer.LocalizeWithPrefix("general.invalid-map"));
+            //    return;
 
-            }
+            //}
 
             var userId = player.UserId!.Value;
             if (!Nominations.ContainsKey(userId))
@@ -146,7 +143,7 @@ namespace cs2_rockthevote
             if (!alreadyVoted)
                 Nominations[userId].Add(map);
 
-            var totalVotes = Nominations.Select(x => x.Value.Where(y => y == map).Count())
+            var totalVotes = Nominations.Select(x => x.Value.Where(y => y.Name == map.Name).Count())
                 .Sum();
 
             if (!alreadyVoted)
@@ -155,10 +152,10 @@ namespace cs2_rockthevote
                 player.PrintToChat(_localizer.LocalizeWithPrefix("nominate.already-nominated", map, totalVotes));
         }
 
-        public List<string> NominationWinners()
+        public List<Map> NominationWinners()
         {
             if (Nominations.Count == 0)
-                return new List<string>();
+                return new List<Map>();
 
             var rawNominations = Nominations
                 .Select(x => x.Value)
@@ -166,7 +163,7 @@ namespace cs2_rockthevote
 
             return rawNominations
                 .Distinct()
-                .Select(map => new KeyValuePair<string, int>(map, rawNominations.Count(x => x == map)))
+                .Select(map => new KeyValuePair<Map, int>(map, rawNominations.Count(x => x.Name == map.Name)))
                 .OrderByDescending(x => x.Value)
                 .Select(x => x.Key)
                 .ToList();

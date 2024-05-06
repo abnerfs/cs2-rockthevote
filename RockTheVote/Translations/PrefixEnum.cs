@@ -10,9 +10,7 @@ namespace cs2_rockthevote.Translations
     {
         None,
         RockTheVote,
-        NextMap,
-        EndOfMap,
         VoteMap,
-        Nominate
+        Timeleft
     }
 }

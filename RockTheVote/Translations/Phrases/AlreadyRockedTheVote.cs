@@ -7,6 +7,6 @@
         public int VoteCount { get; init; }
         public int RequiredVotes { get; init; }
 
-        public object[] Build() => [VoteCount, RequiredVotes];
+        public object[] Build() => [new VotesNeeded {  RequiredVotes = RequiredVotes, VoteCount = VoteCount }];
     }
 }

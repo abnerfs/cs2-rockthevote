@@ -10,10 +10,11 @@ namespace cs2_rockthevote
         public event EventHandler<Map[]>? EventMapsLoaded;
 
         private Plugin? _plugin;
+        private MapCooldown _mapCoolDown;
 
-        public MapLister()
+        public MapLister(MapCooldown mapCoolDown)
         {
-
+            _mapCoolDown = mapCoolDown;
         }
 
         public void Clear()
@@ -37,7 +38,9 @@ namespace cs2_rockthevote
                 .Select(mapLine =>
                 {
                     string[] args = mapLine.Split(":");
-                    return new Map(args[0], args.Length == 2 ? args[1] : null);
+                    Map map = new Map(args[0], args.Length == 2 ? args[1] : null);
+                    map.InCooldown = _mapCoolDown.IsMapInCooldown(map.Name);
+                    return map;
                 })
                 .ToArray();
 

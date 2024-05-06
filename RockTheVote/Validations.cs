@@ -1,4 +1,5 @@
-﻿using cs2_rockthevote.Translations;
+﻿using cs2_rockthevote.Core;
+using cs2_rockthevote.Translations;
 using cs2_rockthevote.Translations.Phrases;
 using System.Collections;
 
@@ -9,12 +10,16 @@ namespace cs2_rockthevote
         private PluginState _pluginState;
         private GameRules _gameRules;
         private ServerManager _serverManager;
+        private MapCooldown _mapCooldown;
+        private MapLister _mapLister;
 
-        public Validations(PluginState pluginState, GameRules gameRules, ServerManager serverManager)
+        public Validations(PluginState pluginState, GameRules gameRules, ServerManager serverManager, MapCooldown mapCooldown, MapLister mapLister)
         {
             _pluginState = pluginState;
             _gameRules = gameRules;
             _serverManager = serverManager;
+            _mapCooldown = mapCooldown;
+            _mapLister = mapLister;
         }
 
         public ValidationCommandDisabled? CommandDisabled(PrefixEnum prefix, bool enabled)
@@ -51,6 +56,25 @@ namespace cs2_rockthevote
 
             return null;
         }
+
+
+        public MapPlayedRecently? PlayedRecently(PrefixEnum prefix, string map)
+        {
+            if (_mapCooldown.IsMapInCooldown(map))
+                return new MapPlayedRecently { Prefix = prefix };
+
+            return null;
+        }
+
+        public InvalidMap? ValidMap(PrefixEnum prefix, string mapName)
+        {
+            Map? map = _mapLister.Maps!.FirstOrDefault(x => x.Name.ToLower() == mapName);
+            if (map is null)
+                return new InvalidMap { Prefix = prefix };
+
+            return null;
+        }
+
 
         public IPhrase? ExecuteValidations(IEnumerable<Func<IPhrase?>> validations)
         {

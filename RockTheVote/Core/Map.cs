@@ -1,9 +1,10 @@
 ﻿namespace cs2_rockthevote
 {
-    public class Map
+    public struct Map
     {
-        public string? Id { get; set; }
-        public string Name { get; set; }
+        public string? Id { get; private set; }
+        public string Name { get; private set; }
+        public bool InCooldown { get; set; }
 
         public Map(string name, string? id)
         {

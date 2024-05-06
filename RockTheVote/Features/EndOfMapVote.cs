@@ -51,7 +51,7 @@ namespace cs2_rockthevote
         {
             KillTimer();
             if (_config.Enabled)
-                _voteManager.StartVote(_config);
+                _voteManager.StartVote(_config, false);
         }
 
         public void OnMapStart(string map)
