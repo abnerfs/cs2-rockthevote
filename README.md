@@ -128,6 +128,10 @@ de_thera:3121217565
 de_dust2
 ```
 
+# Server commands
+
+- rtv [seconds] - Trigger a map vote externally that will change the map immediately with an optional seconds parameter for voting duration (useful for gamemodes like GunGame)
+
 # Limitations
  - Plugins is still under development and a lot of functionality is still going to be added in the future.
  - I usually test the new versions in an empty server with bots so it is hard to tell if everything is actually working, feel free to post any issues here or in the discord thread so I can fix them https://discord.com/channels/1160907911501991946/1176224458751627514
