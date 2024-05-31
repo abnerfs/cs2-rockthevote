@@ -11,7 +11,15 @@ namespace cs2_rockthevote
         [ConsoleCommand("rtv", "Votes to rock the vote")]
         public void OnRTV(CCSPlayerController? player, CommandInfo? command)
         {
-            _rtvManager.CommandHandler(player!);
+            if (player is null) {
+                // Handle server command
+                _rtvManager.CommandServerHandler(player, command);
+            }
+            else
+            {
+                // Handle player command
+                _rtvManager.CommandHandler(player!);
+            }
         }
 
         [GameEventHandler(HookMode.Pre)]
@@ -44,6 +52,43 @@ namespace cs2_rockthevote
         public void OnMapStart(string map)
         {
             _voteManager!.OnMapStart(map);
+        }
+
+        public void CommandServerHandler(CCSPlayerController? player, CommandInfo command)
+        {
+            // Only handle command from server
+            if (player is not null)
+                return;
+
+            if (_pluginState.DisableCommands || !_config.Enabled)
+            {
+                Console.WriteLine(_localizer.LocalizeWithPrefix("general.validation.disabled"));
+                return;
+            }
+
+            int VoteDuration = _config.VoteDuration;
+            string args = command.ArgString.Trim();
+            if (!string.IsNullOrEmpty(args))
+            {
+                if (int.TryParse(args, out int duration))
+                {
+                    VoteDuration = duration;
+                }
+            }
+
+            Console.WriteLine($"[RockTheVote] Starting vote with {VoteDuration} seconds duration");
+
+            RtvConfig config = new RtvConfig
+            {
+                Enabled = true,
+                EnabledInWarmup = true,
+                MinPlayers = 0,
+                MinRounds = 0,
+                ChangeMapImmediatly = true,
+                VoteDuration = VoteDuration,
+                VotePercentage = 1
+            };
+            _endmapVoteManager.StartVote(config);
         }
 
         public void CommandHandler(CCSPlayerController? player)

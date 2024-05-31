@@ -51,6 +51,7 @@ namespace cs2_rockthevote
         List<string> mapsEllected = new();
 
         private IEndOfMapConfig? _config = null;
+        private IEndOfMapConfig? _configBackup = null;
         private int _canVote = 0;
         private Plugin? _plugin;
 
@@ -68,6 +69,13 @@ namespace cs2_rockthevote
             timeLeft = 0;
             mapsEllected.Clear();
             KillTimer();
+
+            // Restore the config if it was changed by the server command
+            if (_configBackup is not null)
+            {
+                _config = _configBackup;
+                _configBackup = null;
+            }
         }
 
         public void MapVoted(CCSPlayerController player, string mapName)
@@ -178,6 +186,9 @@ namespace cs2_rockthevote
         {
             Votes.Clear();
             _voted.Clear();
+
+            // Backup the current config as if this is called via the server command, the config will be changed
+            _configBackup = _config;
 
             _pluginState.EofVoteHappening = true;
             _config = config;
