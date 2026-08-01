@@ -133,6 +133,11 @@ namespace cs2_rockthevote
         {
             bool mapEnd = _config is EndOfMapConfig;
             KillTimer();
+
+            // La votación ha terminado. Sin esto, EofVoteHappening se quedaba en true hasta el
+            // siguiente OnMapStart, y como PluginState.DisableCommands lo mira, !rtv respondía
+            // "disabled" indefinidamente si el cambio de mapa no llegaba a ejecutarse.
+            _pluginState.EofVoteHappening = false;
             decimal maxVotes = Votes.Select(x => x.Value).Max();
             IEnumerable<KeyValuePair<string, int>> potentialWinners = Votes.Where(x => x.Value == maxVotes);
             Random rnd = new();
