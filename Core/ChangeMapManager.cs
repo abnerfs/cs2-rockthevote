@@ -34,6 +34,10 @@ namespace cs2_rockthevote
         private const string DEFAULT_PREFIX = "rtv.prefix";
         private bool _mapEnd = false;
 
+        // Si EventCsWinPanelMatch ya se disparó en este nivel. Necesario porque la votación de fin
+        // de mapa puede terminar DESPUÉS de que la partida haya acabado (ver ScheduleMapChange).
+        private bool _matchEnded = false;
+
         private Map[] _maps = new Map[0];
         private Config _config;
 
@@ -57,12 +61,23 @@ namespace cs2_rockthevote
             _prefix = prefix;
             _pluginState.MapChangeScheduled = true;
             _mapEnd = mapEnd;
+
+            // Un cambio de tipo "fin de mapa" solo lo ejecuta el handler de EventCsWinPanelMatch.
+            // Pero en mapas de rondas cortas la votación puede acabar DESPUÉS de que ese evento ya
+            // se haya disparado: entonces el handler no vio nada programado, y los hooks de
+            // RoundEnd/RoundStart no sirven porque ChangeNextMap() sale por el `mapEnd != _mapEnd`.
+            // El resultado quedaba pendiente hasta el SIGUIENTE final de partida, obligando a jugar
+            // el mapa entero otra vez (y con los comandos bloqueados todo ese rato).
+            // Si la partida ya terminó, aplicamos el cambio ahora mismo.
+            if (mapEnd && _matchEnded)
+                ChangeNextMap(true);
         }
 
         public void OnMapStart(string _map)
         {
             NextMap = null;
             _prefix = DEFAULT_PREFIX;
+            _matchEnded = false;
         }
 
         public bool ChangeNextMap(bool mapEnd = false)
@@ -102,6 +117,7 @@ namespace cs2_rockthevote
             _plugin = plugin;
             plugin.RegisterEventHandler<EventCsWinPanelMatch>((ev, info) =>
             {
+                _matchEnded = true;
                 if (_pluginState.MapChangeScheduled)
                 {
                     var delay = _config.EndOfMapVote.DelayToChangeInTheEnd - 3.0F; //subtracting the delay that is going to be applied by ChangeNextMap function anyway

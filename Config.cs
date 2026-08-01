@@ -75,6 +75,15 @@ namespace cs2_rockthevote
         public bool ShowToAll { get; set; } = false;
     }
 
+    public class LevelReloadConfig
+    {
+        public bool Enabled { get; set; } = true;
+
+        // Horas de sesión de mapa a partir de las cuales se recicla el nivel, siempre que el
+        // servidor esté vacío. Ver LevelReloadManager.
+        public int Hours { get; set; } = 3;
+    }
+
 
     public class Config : IBasePluginConfig
     {
@@ -84,6 +93,7 @@ namespace cs2_rockthevote
         public EndOfMapConfig EndOfMapVote { get; set; } = new();
         public TimeleftConfig Timeleft { get; set; } = new();
         public NextmapConfig Nextmap { get; set; } = new();
+        public LevelReloadConfig LevelReload { get; set; } = new();
         public ushort MapsInCoolDown { get; set; } = 3;
     }
 }
